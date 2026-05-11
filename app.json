@@ -29,6 +29,7 @@
       "firebaseStorageBucket": "",
       "firebaseMessagingSenderId": "",
       "firebaseAppId": "",
+      "apiBaseUrl": "https://buddyup-api-638469471472.europe-west3.run.app",
       "googleExpoClientId": "",
       "googleIosClientId": "",
       "googleAndroidClientId": "",
