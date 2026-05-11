@@ -7,8 +7,10 @@ const { URL } = require("url");
 
 const PORT = Number(process.env.PORT || 4000);
 const defaultDataFile = process.env.BUDDYUP_DB_FILE || path.join(__dirname, "data", "buddyup-db.json");
+const DATA_STORE = process.env.DATA_STORE || "json";
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5";
+const OLLAMA_ENABLED = process.env.OLLAMA_ENABLED !== "false";
 
 const colors = ["#FF7A00", "#00D084", "#7C3AED", "#2F80ED", "#FFB347"];
 
@@ -118,6 +120,87 @@ function writeDb(db, dataFile = defaultDataFile) {
   fs.writeFileSync(dataFile, JSON.stringify(db, null, 2));
 }
 
+const collectionNames = ["users", "goals", "matches", "checkIns", "messages", "posts", "buddies"];
+
+function normalizeDatabase(db) {
+  const seeded = seedDatabase();
+  return {
+    users: db.users || [],
+    goals: db.goals || [],
+    matches: db.matches || [],
+    checkIns: db.checkIns || [],
+    messages: db.messages || [],
+    posts: db.posts?.length ? db.posts : seeded.posts,
+    buddies: db.buddies?.length ? db.buddies : seeded.buddies
+  };
+}
+
+function createJsonStore(dataFile = defaultDataFile) {
+  return {
+    async read() {
+      return normalizeDatabase(readDb(dataFile));
+    },
+    async write(db) {
+      writeDb(normalizeDatabase(db), dataFile);
+    }
+  };
+}
+
+function createFirestoreStore() {
+  let firestore;
+
+  function getFirestore() {
+    if (!firestore) {
+      const { Firestore } = require("@google-cloud/firestore");
+      firestore = new Firestore();
+    }
+    return firestore;
+  }
+
+  return {
+    async read() {
+      const db = {};
+      const client = getFirestore();
+      await Promise.all(collectionNames.map(async (name) => {
+        const snapshot = await client.collection(name).get();
+        db[name] = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      }));
+      return normalizeDatabase(db);
+    },
+    async write(db) {
+      const client = getFirestore();
+      const next = normalizeDatabase(db);
+      const batch = client.batch();
+
+      await Promise.all(collectionNames.map(async (name) => {
+        const collection = client.collection(name);
+        const incoming = next[name] || [];
+        const incomingIds = new Set(incoming.map((item) => item.id));
+        const snapshot = await collection.get();
+
+        snapshot.docs.forEach((doc) => {
+          if (!incomingIds.has(doc.id)) {
+            batch.delete(doc.ref);
+          }
+        });
+
+        incoming.forEach((item) => {
+          batch.set(collection.doc(item.id), item, { merge: false });
+        });
+      }));
+
+      await batch.commit();
+    }
+  };
+}
+
+function createDataStore(options = {}) {
+  if (options.store) return options.store;
+  if (options.dataFile) return createJsonStore(options.dataFile);
+  if (DATA_STORE === "firestore") return createFirestoreStore();
+  return createJsonStore(defaultDataFile);
+}
+
 function publicUser(user) {
   if (!user) return null;
   const { passwordHash, ...safeUser } = user;
@@ -192,6 +275,8 @@ function coachReply(text, goals) {
 }
 
 async function askOllama(text, goals) {
+  if (!OLLAMA_ENABLED) throw new Error("Ollama is disabled");
+
   const goalSummary = goals.map((goal) => `${goal.title}: ${Math.round(goal.progress * 100)}%`).join(", ");
   const response = await fetch(`${OLLAMA_URL}/api/chat`, {
     method: "POST",
@@ -217,12 +302,11 @@ async function askOllama(text, goals) {
 }
 
 function createBuddyUpServer(options = {}) {
-  const dataFile = options.dataFile || defaultDataFile;
+  const store = createDataStore(options);
 
   return http.createServer(async function handle(req, res) {
   if (req.method === "OPTIONS") return json(res, 200, { ok: true });
 
-  const db = readDb(dataFile);
   const url = new URL(req.url, `http://${req.headers.host}`);
   const parts = url.pathname.split("/").filter(Boolean);
 
@@ -230,6 +314,8 @@ function createBuddyUpServer(options = {}) {
     if (req.method === "GET" && url.pathname === "/health") {
       return json(res, 200, { ok: true, time: now() });
     }
+
+    const db = await store.read();
 
     if (req.method === "POST" && url.pathname === "/auth/signup") {
       const body = await parseBody(req);
@@ -258,7 +344,7 @@ function createBuddyUpServer(options = {}) {
         };
         db.users.push(user);
         db.goals.push(...createStarterGoals(user.id, []));
-        writeDb(db, dataFile);
+        await store.write(db);
       }
       return json(res, 200, { user: publicUser(user) });
     }
@@ -323,7 +409,7 @@ function createBuddyUpServer(options = {}) {
         user.photoURL = profile.picture || user.photoURL || "";
         user.updatedAt = now();
       }
-      writeDb(db, dataFile);
+      await store.write(db);
       return json(res, 200, { user: publicUser(user) });
     }
 
@@ -345,7 +431,7 @@ function createBuddyUpServer(options = {}) {
         db.goals = db.goals.filter((goal) => goal.userId !== user.id);
         db.goals.push(...createStarterGoals(user.id, user.goals));
       }
-      writeDb(db, dataFile);
+      await store.write(db);
       return json(res, 200, { user: publicUser(user), goals: db.goals.filter((goal) => goal.userId === user.id) });
     }
 
@@ -390,7 +476,7 @@ function createBuddyUpServer(options = {}) {
           createdAt: now()
         });
       }
-      writeDb(db, dataFile);
+      await store.write(db);
       return json(res, 200, { match, buddy });
     }
 
@@ -418,7 +504,7 @@ function createBuddyUpServer(options = {}) {
         createdAt: now()
       };
       db.messages.push(message, reply);
-      writeDb(db, dataFile);
+      await store.write(db);
       return json(res, 200, { messages: db.messages.filter((item) => item.matchId === body.matchId) });
     }
 
@@ -451,7 +537,7 @@ function createBuddyUpServer(options = {}) {
         user.reliabilityScore = Math.min(99, user.reliabilityScore + 1);
         user.updatedAt = now();
       }
-      writeDb(db, dataFile);
+      await store.write(db);
       return json(res, 200, {
         checkIn,
         user: publicUser(user),
@@ -476,7 +562,7 @@ function createBuddyUpServer(options = {}) {
         createdAt: now()
       };
       db.posts.unshift(post);
-      writeDb(db, dataFile);
+      await store.write(db);
       return json(res, 200, { posts: db.posts });
     }
 
@@ -520,7 +606,7 @@ function getLanAddresses() {
 if (require.main === module) {
   createBuddyUpServer().listen(PORT, "0.0.0.0", () => {
     console.log(`BuddyUp API listening on http://localhost:${PORT}`);
-    console.log(`Ollama coach: ${OLLAMA_URL} model=${OLLAMA_MODEL}`);
+    console.log(`Ollama coach: ${OLLAMA_ENABLED ? `${OLLAMA_URL} model=${OLLAMA_MODEL}` : "disabled"}`);
     getLanAddresses().forEach((address) => console.log(`Phone/emulator API: http://${address}:${PORT}`));
   });
 }
