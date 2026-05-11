@@ -3,6 +3,9 @@ substitutions:
   _REPOSITORY: buddyup-api
   _SERVICE: buddyup-api
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 steps:
   - name: gcr.io/cloud-builders/docker
     args:
