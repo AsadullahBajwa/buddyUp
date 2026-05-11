@@ -1,0 +1,134 @@
+Build a modern mobile app called “BuddyUp” inspired by Reddit communities like r/Accountabilibuddies and r/GetMotivatedBuddies.
+
+The app should help users find accountability partners for goals like fitness, studying, productivity, gym, self-improvement, language learning, quitting bad habits, meditation, and daily routines.
+
+Design Style:
+- Modern, minimal, motivational UI
+- Dark mode support
+- Smooth animations
+- Gen Z friendly design
+- Use warm energetic colors like orange, black, dark blue, and gradient accents
+- Similar quality to Duolingo + Discord + Tinder swipe UI
+
+Core Features:
+1. User Authentication
+- Email signup/login
+- Google login
+- Student email verification option
+- Username, age, timezone, interests, goals
+
+2. Goal Categories
+- Fitness
+- Study
+- Productivity
+- Weight loss
+- Mental health
+- Language learning
+- Meditation
+- Business
+- Coding
+- Reading
+- Custom goals
+
+3. Smart Buddy Matching
+- Match users based on:
+  - Timezone
+  - Goal type
+  - Activity level
+  - Preferred communication style
+- Swipe-based buddy discovery like Tinder
+- “Find serious accountability partner” filter
+
+4. Daily Check-ins
+- Users post:
+  - Progress photos
+  - Task completion
+  - Habit streaks
+  - Voice notes
+- Daily streak system
+- Missed check-in reminders
+
+5. Chat System
+- Real-time messaging
+- Voice notes
+- Goal sharing
+- Daily motivation prompts
+- Emoji reactions
+
+6. Accountability System
+- Users set commitments
+- Streak tracking
+- Shared goals
+- Weekly reports
+- “Ghosting detection”
+- Reliability score
+
+7. Gamification
+- XP points
+- Level system
+- Badges
+- Leaderboards
+- Habit streak fire icons
+- Community challenges
+
+8. Community Features
+- Public accountability groups
+- Anonymous posting option
+- Motivational feed
+- Reddit-style discussion threads
+- Upvotes and comments
+
+9. AI Features
+- AI motivational coach
+- AI-generated daily plans
+- Smart reminders
+- Mood tracking
+- Productivity insights
+
+10. Safety & Moderation
+- Report/block users
+- Anti-harassment moderation
+- Toxicity detection
+- Safe community guidelines
+
+Technical Stack:
+- React Native with Expo
+- Firebase backend
+- Firestore database
+- Firebase Authentication
+- Cloud Messaging notifications
+- TypeScript
+- Clean scalable architecture
+
+Pages/Screens:
+- Splash screen
+- Onboarding
+- Login/signup
+- Profile creation
+- Match/discover screen
+- Chat screen
+- Community feed
+- Goal dashboard
+- Daily check-ins
+- Settings/profile
+
+Extra Ideas:
+- QR code friend adding
+- “Focus room” live sessions
+- Pomodoro timer
+- Study with camera mode
+- Group accountability circles
+- Weekly habit analytics
+- Spotify integration for focus music
+
+Generate:
+- Full mobile app UI/UX
+- Folder structure
+- Backend schema
+- Firebase setup
+- Responsive screens
+- Clean reusable components
+- Production-ready code
+- App icon ideas
+- App Store screenshots
+- Modern onboarding flow

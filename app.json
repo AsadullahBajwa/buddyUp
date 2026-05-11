@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "BuddyUp",
+    "slug": "buddyup",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "buddyup",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.buddyup.app"
+    },
+    "android": {
+      "package": "com.buddyup.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0F1C"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "firebaseApiKey": "",
+      "firebaseAuthDomain": "",
+      "firebaseProjectId": "",
+      "firebaseStorageBucket": "",
+      "firebaseMessagingSenderId": "",
+      "firebaseAppId": "",
+      "googleExpoClientId": "",
+      "googleIosClientId": "",
+      "googleAndroidClientId": "",
+      "googleWebClientId": ""
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font",
+      "expo-web-browser"
+    ]
+  }
+}
