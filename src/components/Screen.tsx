@@ -1,5 +1,13 @@
 import { ReactNode } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -17,13 +25,26 @@ export function Screen({ children, scroll = true, footerSpace = false }: ScreenP
   return (
     <LinearGradient colors={gradients.hero} style={styles.root}>
       <SafeAreaView style={styles.safe}>
-        {scroll ? (
-          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-            {content}
-          </ScrollView>
-        ) : (
-          content
-        )}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 8 : 0}
+          style={styles.keyboard}
+        >
+          <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
+            {scroll ? (
+              <ScrollView
+                contentContainerStyle={styles.scroll}
+                keyboardDismissMode="on-drag"
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+              >
+                {content}
+              </ScrollView>
+            ) : (
+              content
+            )}
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </LinearGradient>
   );
@@ -35,6 +56,9 @@ const styles = StyleSheet.create({
     flex: 1
   },
   safe: {
+    flex: 1
+  },
+  keyboard: {
     flex: 1
   },
   scroll: {
