@@ -73,6 +73,27 @@ test("signup creates a public user and starter goals", async () => {
   });
 });
 
+test("email login returns an existing public user", async () => {
+  await withApi(async (baseUrl) => {
+    const email = `login-${Date.now()}@buddyup.test`;
+    const password = "buddyup123";
+
+    await api(baseUrl, "/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ name: "Login User", email, password })
+    });
+
+    const { response, body } = await api(baseUrl, "/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password })
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(body.user.email, email);
+    assert.equal(body.user.passwordHash, undefined);
+  });
+});
+
 test("google auth connects a verified Google profile to a local user", async () => {
   await withApi(async (baseUrl) => {
     const { response, body } = await api(baseUrl, "/auth/google", {

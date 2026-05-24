@@ -59,6 +59,16 @@ export default function App() {
     }
   }
 
+  async function handleLogin(input: { email: string; password: string }) {
+    try {
+      const data = await api.login(input);
+      setUser(data.user);
+      enterMain();
+    } catch (error) {
+      Alert.alert("Login failed", error instanceof Error ? error.message : "Could not sign in");
+    }
+  }
+
   async function handleGoogleSignup(accessToken: string) {
     try {
       const data = await api.googleSignup(accessToken);
@@ -155,6 +165,7 @@ export default function App() {
         <AuthScreen
           onAuthError={(message) => Alert.alert("Authentication", message)}
           onAuthenticated={handleSignup}
+          onLogin={handleLogin}
           onGoogleAuthenticated={handleGoogleSignup}
         />
       </SafeAreaProvider>

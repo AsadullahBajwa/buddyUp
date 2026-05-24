@@ -41,6 +41,12 @@ export const api = {
       body: JSON.stringify(input)
     });
   },
+  login(input: { email: string; password: string }) {
+    return request<{ user: LocalUser }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(input)
+    });
+  },
   googleSignup(accessToken: string) {
     return request<{ user: LocalUser }>("/auth/google", {
       method: "POST",

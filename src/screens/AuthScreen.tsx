@@ -13,6 +13,7 @@ import { colors, radii, spacing } from "../theme";
 
 type AuthScreenProps = {
   onAuthenticated: (input: { name: string; email: string; password: string }) => void;
+  onLogin?: (input: { email: string; password: string }) => void;
   onGoogleAuthenticated?: (accessToken: string) => void;
   onAuthError?: (message: string) => void;
 };
@@ -76,13 +77,19 @@ function GoogleSignInButton({ onGoogleAuthenticated, onAuthError }: GoogleButton
   );
 }
 
-export function AuthScreen({ onAuthenticated, onGoogleAuthenticated, onAuthError }: AuthScreenProps) {
+export function AuthScreen({ onAuthenticated, onLogin, onGoogleAuthenticated, onAuthError }: AuthScreenProps) {
+  const [mode, setMode] = useState<"signup" | "login">("signup");
   const [name, setName] = useState("Alex Carter");
   const [email, setEmail] = useState("alex@buddyup.test");
   const [password, setPassword] = useState("buddyup123");
   const googleConfig = useMemo(getGoogleClientConfig, []);
+  const isLogin = mode === "login";
 
   function submit() {
+    if (isLogin) {
+      onLogin?.({ email, password });
+      return;
+    }
     onAuthenticated({ name, email, password });
   }
 
@@ -94,15 +101,26 @@ export function AuthScreen({ onAuthenticated, onGoogleAuthenticated, onAuthError
     <Screen>
       <View style={styles.top}>
         <AppLogo size="small" />
-        <Text style={styles.title}>Create your account</Text>
-        <Text style={styles.subtitle}>Let us get your accountability circle started.</Text>
+        <Text style={styles.title}>{isLogin ? "Welcome back" : "Create your account"}</Text>
+        <Text style={styles.subtitle}>
+          {isLogin ? "Jump back into your accountability routine." : "Let us get your accountability circle started."}
+        </Text>
+      </View>
+
+      <View style={styles.modeSwitch}>
+        <Pressable style={[styles.modeButton, !isLogin && styles.activeMode]} onPress={() => setMode("signup")}>
+          <Text style={[styles.modeText, !isLogin && styles.activeModeText]}>Sign up</Text>
+        </Pressable>
+        <Pressable style={[styles.modeButton, isLogin && styles.activeMode]} onPress={() => setMode("login")}>
+          <Text style={[styles.modeText, isLogin && styles.activeModeText]}>Log in</Text>
+        </Pressable>
       </View>
 
       <View style={styles.form}>
-        <TextField placeholder="Full name" autoCapitalize="words" onChangeText={setName} value={name} />
+        {!isLogin ? <TextField placeholder="Full name" autoCapitalize="words" onChangeText={setName} value={name} /> : null}
         <TextField placeholder="Email" keyboardType="email-address" autoCapitalize="none" onChangeText={setEmail} value={email} />
         <TextField placeholder="Password" secureTextEntry onChangeText={setPassword} value={password} />
-        <GradientButton label="Sign Up" onPress={submit} />
+        <GradientButton label={isLogin ? "Log In" : "Sign Up"} onPress={submit} />
       </View>
 
       <View style={styles.dividerRow}>
@@ -154,7 +172,34 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: spacing.md,
-    marginTop: spacing.xxl
+    marginTop: spacing.lg
+  },
+  modeSwitch: {
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.xs,
+    marginTop: spacing.xl,
+    padding: spacing.xs
+  },
+  modeButton: {
+    alignItems: "center",
+    borderRadius: radii.sm,
+    flex: 1,
+    paddingVertical: spacing.sm
+  },
+  activeMode: {
+    backgroundColor: colors.orange
+  },
+  modeText: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: "900"
+  },
+  activeModeText: {
+    color: colors.white
   },
   dividerRow: {
     alignItems: "center",
