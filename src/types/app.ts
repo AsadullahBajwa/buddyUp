@@ -48,6 +48,12 @@ export type FeedPost = {
   body: string;
   upvotes: number;
   comments: number;
+  commentsList?: {
+    id: string;
+    body: string;
+    author: string;
+    createdAt: string;
+  }[];
   accent: string;
 };
 

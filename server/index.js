@@ -41,6 +41,7 @@ function seedDatabase() {
         body: "We are in this together. Who is in for a 7-day study challenge?",
         upvotes: 24,
         comments: 12,
+        commentsList: [],
         accent: "#7C3AED",
         createdAt: now()
       },
@@ -51,6 +52,7 @@ function seedDatabase() {
         body: "Discipline today, freedom tomorrow.",
         upvotes: 35,
         comments: 3,
+        commentsList: [],
         accent: "#00D084",
         createdAt: now()
       }
@@ -558,12 +560,40 @@ function createBuddyUpServer(options = {}) {
         body: body.body || "",
         upvotes: 0,
         comments: 0,
+        commentsList: [],
         accent: colors[db.posts.length % colors.length],
         createdAt: now()
       };
       db.posts.unshift(post);
       await store.write(db);
       return json(res, 200, { posts: db.posts });
+    }
+
+    if (req.method === "POST" && parts[0] === "community" && parts[1] === "posts" && parts[2] && parts[3] === "upvote") {
+      const post = db.posts.find((item) => item.id === parts[2]);
+      if (!post) return json(res, 404, { error: "Post not found" });
+      post.upvotes = Number(post.upvotes || 0) + 1;
+      await store.write(db);
+      return json(res, 200, { post, posts: db.posts });
+    }
+
+    if (req.method === "POST" && parts[0] === "community" && parts[1] === "posts" && parts[2] && parts[3] === "comments") {
+      const body = await parseBody(req);
+      const post = db.posts.find((item) => item.id === parts[2]);
+      if (!post) return json(res, 404, { error: "Post not found" });
+      const commentBody = String(body.body || "").trim();
+      if (!commentBody) return json(res, 400, { error: "Comment body is required" });
+      const comment = {
+        id: id("comment"),
+        author: body.author || "BuddyUp member",
+        body: commentBody,
+        createdAt: now()
+      };
+      post.commentsList = Array.isArray(post.commentsList) ? post.commentsList : [];
+      post.commentsList.push(comment);
+      post.comments = Number(post.comments || 0) + 1;
+      await store.write(db);
+      return json(res, 200, { post, posts: db.posts });
     }
 
     if (req.method === "GET" && url.pathname === "/coach/plan") {

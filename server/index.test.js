@@ -218,6 +218,29 @@ test("community posts can be created and returned first", async () => {
   });
 });
 
+test("community posts support upvotes and comments", async () => {
+  await withApi(async (baseUrl) => {
+    const created = await api(baseUrl, "/community/posts", {
+      method: "POST",
+      body: JSON.stringify({ body: "Day one is done.", group: "Daily Motivation" })
+    });
+    const postId = created.body.posts[0].id;
+
+    const upvoted = await api(baseUrl, `/community/posts/${postId}/upvote`, { method: "POST" });
+    assert.equal(upvoted.response.status, 200);
+    assert.equal(upvoted.body.post.upvotes, 1);
+
+    const commented = await api(baseUrl, `/community/posts/${postId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ body: "Proud of this start." })
+    });
+
+    assert.equal(commented.response.status, 200);
+    assert.equal(commented.body.post.comments, 1);
+    assert.equal(commented.body.post.commentsList[0].body, "Proud of this start.");
+  });
+});
+
 test("coach returns a plan and a reply without requiring Ollama", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);

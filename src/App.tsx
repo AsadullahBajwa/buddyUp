@@ -140,6 +140,16 @@ export default function App() {
     setPosts(data.posts);
   }
 
+  async function handleUpvotePost(postId: string) {
+    const data = await api.upvotePost(postId);
+    setPosts(data.posts);
+  }
+
+  async function handleCommentPost(postId: string, body: string) {
+    const data = await api.commentPost(postId, body);
+    setPosts(data.posts);
+  }
+
   if (authStep === "splash") {
     return (
       <SafeAreaProvider>
@@ -189,7 +199,14 @@ export default function App() {
       {route === "home" ? (
         <GoalsScreen goals={goals} onOpenCommunity={() => setRoute("community")} onOpenCoach={() => setRoute("coach")} />
       ) : null}
-      {route === "community" ? <CommunityScreen posts={posts} onCreatePost={handleCreatePost} /> : null}
+      {route === "community" ? (
+        <CommunityScreen
+          posts={posts}
+          onCommentPost={handleCommentPost}
+          onCreatePost={handleCreatePost}
+          onUpvotePost={handleUpvotePost}
+        />
+      ) : null}
       {route === "coach" ? <AICoachScreen goals={goals} userId={user?.id} onBack={() => setRoute("home")} /> : null}
       {route === "discover" ? <DiscoverScreen onMatch={handleMatch} /> : null}
       {route === "checkin" ? <CheckInScreen goals={goals} onSubmit={handleCheckIn} /> : null}

@@ -95,6 +95,17 @@ export const api = {
       body: JSON.stringify({ body, group: "Daily Motivation" })
     });
   },
+  upvotePost(postId: string) {
+    return request<{ post: FeedPost; posts: FeedPost[] }>(`/community/posts/${postId}/upvote`, {
+      method: "POST"
+    });
+  },
+  commentPost(postId: string, body: string) {
+    return request<{ post: FeedPost; posts: FeedPost[] }>(`/community/posts/${postId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ body })
+    });
+  },
   coachPlan(userId: string) {
     return request<{ plan: string[] }>(`/coach/plan?userId=${userId}`);
   },

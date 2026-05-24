@@ -12,17 +12,29 @@ const tabs = ["For You", "Following", "Groups"];
 
 type CommunityScreenProps = {
   posts?: FeedPost[];
+  onCommentPost?: (postId: string, body: string) => void;
   onCreatePost?: (body: string) => void;
+  onUpvotePost?: (postId: string) => void;
 };
 
-export function CommunityScreen({ posts = feedPosts, onCreatePost }: CommunityScreenProps) {
+export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost, onUpvotePost }: CommunityScreenProps) {
   const [draft, setDraft] = useState("");
+  const [commentingPostId, setCommentingPostId] = useState<string | null>(null);
+  const [commentDraft, setCommentDraft] = useState("");
 
   function createPost() {
     const body = draft.trim();
     if (!body) return;
     setDraft("");
     onCreatePost?.(body);
+  }
+
+  function createComment(postId: string) {
+    const body = commentDraft.trim();
+    if (!body) return;
+    setCommentDraft("");
+    setCommentingPostId(null);
+    onCommentPost?.(postId, body);
   }
 
   return (
@@ -70,20 +82,34 @@ export function CommunityScreen({ posts = feedPosts, onCreatePost }: CommunitySc
             </View>
             <Text style={styles.body}>{post.body}</Text>
             <View style={styles.reactions}>
-              <View style={styles.reaction}>
+              <Pressable style={styles.reaction} onPress={() => onUpvotePost?.(post.id)}>
                 <Feather name="arrow-up-circle" color={colors.soft} size={17} />
                 <Text style={styles.reactionText}>{post.upvotes}</Text>
-              </View>
-              <View style={styles.reaction}>
+              </Pressable>
+              <Pressable style={styles.reaction} onPress={() => setCommentingPostId((current) => current === post.id ? null : post.id)}>
                 <Feather name="message-circle" color={colors.soft} size={17} />
                 <Text style={styles.reactionText}>{post.comments}</Text>
-              </View>
+              </Pressable>
               <View style={styles.memberDots}>
                 {[0, 1, 2].map((dot) => (
                   <View key={dot} style={[styles.dot, { marginLeft: dot === 0 ? 0 : -6 }]} />
                 ))}
               </View>
             </View>
+            {post.commentsList?.slice(-1).map((comment) => (
+              <View key={comment.id} style={styles.latestComment}>
+                <Text style={styles.commentAuthor}>{comment.author}</Text>
+                <Text style={styles.commentBody}>{comment.body}</Text>
+              </View>
+            ))}
+            {commentingPostId === post.id ? (
+              <View style={styles.commentComposer}>
+                <TextField placeholder="Add encouragement..." onChangeText={setCommentDraft} style={styles.commentInput} value={commentDraft} />
+                <Pressable style={styles.commentButton} onPress={() => createComment(post.id)}>
+                  <Feather name="corner-down-left" color={colors.white} size={16} />
+                </Pressable>
+              </View>
+            ) : null}
           </View>
         ))}
       </View>
@@ -230,5 +256,42 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     height: 24,
     width: 24
+  },
+  latestComment: {
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.line,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    marginTop: spacing.md,
+    padding: spacing.md
+  },
+  commentAuthor: {
+    color: colors.orange,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  commentBody: {
+    color: colors.soft,
+    fontSize: 13,
+    lineHeight: 19,
+    marginTop: spacing.xs
+  },
+  commentComposer: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.md
+  },
+  commentInput: {
+    flex: 1,
+    minHeight: 44
+  },
+  commentButton: {
+    alignItems: "center",
+    backgroundColor: colors.purple,
+    borderRadius: radii.pill,
+    height: 44,
+    justifyContent: "center",
+    width: 44
   }
 });
