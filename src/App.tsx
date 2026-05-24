@@ -32,6 +32,7 @@ export default function App() {
   const [activeBuddy, setActiveBuddy] = useState<Buddy>(seedBuddies[0]);
   const [activeMatchId, setActiveMatchId] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>(seedMessages);
+  const [isSavingCheckIn, setIsSavingCheckIn] = useState(false);
 
   const enterOnboarding = useCallback(() => setAuthStep("onboarding"), []);
   const enterAuth = useCallback(() => setAuthStep("auth"), []);
@@ -111,7 +112,12 @@ export default function App() {
 
   async function handleCheckIn(input: { completedTaskIds: string[]; note: string; type: string }) {
     if (!user) return;
+    if (input.completedTaskIds.length === 0 && !input.note.trim()) {
+      Alert.alert("Check-in needs progress", "Select at least one goal or add a short note first.");
+      return;
+    }
     try {
+      setIsSavingCheckIn(true);
       const data = await api.checkIn({ userId: user.id, ...input });
       setUser(data.user);
       setGoals(data.goals);
@@ -119,6 +125,8 @@ export default function App() {
       setRoute("home");
     } catch (error) {
       Alert.alert("Check-in failed", error instanceof Error ? error.message : "Could not save check-in");
+    } finally {
+      setIsSavingCheckIn(false);
     }
   }
 
@@ -131,8 +139,12 @@ export default function App() {
       ]);
       return;
     }
-    const data = await api.sendMessage(activeMatchId, text);
-    setMessages(data.messages);
+    try {
+      const data = await api.sendMessage(activeMatchId, text);
+      setMessages(data.messages);
+    } catch (error) {
+      Alert.alert("Message failed", error instanceof Error ? error.message : "Could not send this message");
+    }
   }
 
   async function handleCreatePost(body: string) {
@@ -209,7 +221,7 @@ export default function App() {
       ) : null}
       {route === "coach" ? <AICoachScreen goals={goals} userId={user?.id} onBack={() => setRoute("home")} /> : null}
       {route === "discover" ? <DiscoverScreen onMatch={handleMatch} /> : null}
-      {route === "checkin" ? <CheckInScreen goals={goals} onSubmit={handleCheckIn} /> : null}
+      {route === "checkin" ? <CheckInScreen goals={goals} isSubmitting={isSavingCheckIn} onSubmit={handleCheckIn} /> : null}
       {route === "chat" ? <ChatScreen buddy={activeBuddy} messages={messages} onSendMessage={handleSendMessage} /> : null}
       {route === "profile" ? <ProfileScreen user={user} goals={goals} matchesCount={matches.length} /> : null}
       <BottomTabs active={activeTab} onChange={setRoute} />

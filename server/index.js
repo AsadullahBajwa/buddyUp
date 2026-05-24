@@ -268,7 +268,7 @@ function coachPlan(goals) {
 
 function coachReply(text, goals) {
   const lower = String(text).toLowerCase();
-  const lowest = goals.sort((a, b) => a.progress - b.progress)[0];
+  const lowest = [...goals].sort((a, b) => a.progress - b.progress)[0];
   if (lower.includes("plan")) return `Today's plan: ${coachPlan(goals).join(", ")}. Keep it small enough to finish.`;
   if (lower.includes("stuck")) return "Shrink the task. Do the first two minutes, send your buddy proof, then decide whether to continue.";
   if (lower.includes("motivat")) return "You do not need a perfect day. You need one completed promise. That is how reliability is built.";

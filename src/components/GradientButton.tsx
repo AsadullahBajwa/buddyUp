@@ -4,20 +4,21 @@ import { LinearGradient } from "expo-linear-gradient";
 import { colors, gradients, radii, shadows, spacing } from "../theme";
 
 type GradientButtonProps = {
+  disabled?: boolean;
   label: string;
   onPress?: () => void;
   variant?: "primary" | "cool";
   style?: ViewStyle;
 };
 
-export function GradientButton({ label, onPress, variant = "primary", style }: GradientButtonProps) {
+export function GradientButton({ disabled = false, label, onPress, variant = "primary", style }: GradientButtonProps) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={style}>
+    <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress} style={style}>
       <LinearGradient
         colors={variant === "primary" ? gradients.primary : gradients.cool}
         end={{ x: 1, y: 1 }}
         start={{ x: 0, y: 0 }}
-        style={styles.button}
+        style={[styles.button, disabled && styles.disabled]}
       >
         <Text style={styles.label}>{label}</Text>
       </LinearGradient>
@@ -39,5 +40,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "800",
     letterSpacing: 0
+  },
+  disabled: {
+    opacity: 0.58
   }
 });

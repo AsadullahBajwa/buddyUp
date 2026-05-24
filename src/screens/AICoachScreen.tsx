@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 
@@ -20,6 +20,7 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
   const [plan, setPlan] = useState<string[]>(fallbackPlan.length ? fallbackPlan : ["Study 45 minutes", "Workout", "Read 10 pages", "Check in"]);
   const [reply, setReply] = useState("Remember why you started. Small steps every day lead to big changes.");
   const [draft, setDraft] = useState("");
+  const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -30,14 +31,23 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
 
   async function askCoach(text = draft) {
     const prompt = text.trim() || "motivate me";
+    if (isThinking) return;
     setDraft("");
+    Keyboard.dismiss();
     if (!userId) {
       setReply("Match your day to one tiny action: choose the easiest goal, do 10 minutes, then check in.");
       return;
     }
-    const data = await api.coachMessage(userId, prompt);
-    setReply(data.reply);
-    setPlan(data.plan);
+    setIsThinking(true);
+    try {
+      const data = await api.coachMessage(userId, prompt);
+      setReply(data.reply);
+      setPlan(data.plan);
+    } catch (error) {
+      setReply("I could not reach the coach service right now. Pick one goal, work for 10 focused minutes, then check in.");
+    } finally {
+      setIsThinking(false);
+    }
   }
 
   return (
@@ -61,7 +71,7 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
           ))}
         </View>
 
-        <GradientButton label="Give me motivation" onPress={() => askCoach("motivate me")} variant="cool" />
+        <GradientButton disabled={isThinking} label={isThinking ? "Thinking..." : "Give me motivation"} onPress={() => askCoach("motivate me")} variant="cool" />
 
         <View style={styles.coachCard}>
           <View style={styles.coachCopy}>
@@ -76,8 +86,8 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
 
       <View style={styles.composer}>
         <TextField placeholder="Ask me anything..." onChangeText={setDraft} onSubmitEditing={() => askCoach()} style={styles.input} value={draft} />
-        <Pressable style={styles.send} onPress={() => askCoach()}>
-          <Feather name="arrow-up" color={colors.white} size={18} />
+        <Pressable disabled={isThinking} style={[styles.send, isThinking && styles.sendDisabled]} onPress={() => askCoach()}>
+          <Feather name={isThinking ? "clock" : "arrow-up"} color={colors.white} size={18} />
         </Pressable>
       </View>
     </Screen>
@@ -180,5 +190,8 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     width: 50
+  },
+  sendDisabled: {
+    opacity: 0.6
   }
 });

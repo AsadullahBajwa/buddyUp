@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
 
@@ -18,10 +18,11 @@ const checkInTypes = [
 
 type CheckInScreenProps = {
   goals?: Goal[];
+  isSubmitting?: boolean;
   onSubmit?: (input: { completedTaskIds: string[]; note: string; type: string }) => void;
 };
 
-export function CheckInScreen({ goals = [], onSubmit }: CheckInScreenProps) {
+export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: CheckInScreenProps) {
   const taskSeed = useMemo(
     () => goals.length ? goals.map((goal) => ({ id: goal.id, title: goal.title, done: false })) : dailyTasks,
     [goals]
@@ -69,7 +70,15 @@ export function CheckInScreen({ goals = [], onSubmit }: CheckInScreenProps) {
       </View>
 
       <TextField placeholder="Add a note..." multiline onChangeText={setNote} style={styles.note} value={note} />
-      <GradientButton label="Check In" onPress={() => onSubmit?.({ completedTaskIds: doneIds, note, type })} style={styles.button} />
+      <GradientButton
+        disabled={isSubmitting}
+        label={isSubmitting ? "Saving..." : "Check In"}
+        onPress={() => {
+          Keyboard.dismiss();
+          onSubmit?.({ completedTaskIds: doneIds, note, type });
+        }}
+        style={styles.button}
+      />
     </Screen>
   );
 }

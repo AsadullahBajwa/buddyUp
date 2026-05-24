@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 
@@ -11,17 +11,24 @@ import { Buddy, ChatMessage } from "../types/app";
 type ChatScreenProps = {
   buddy?: Buddy;
   messages?: ChatMessage[];
-  onSendMessage?: (text: string) => void;
+  onSendMessage?: (text: string) => Promise<void> | void;
 };
 
 export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSendMessage }: ChatScreenProps) {
   const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
 
-  function send() {
+  async function send() {
     const text = draft.trim();
-    if (!text) return;
+    if (!text || sending) return;
     setDraft("");
-    onSendMessage?.(text);
+    Keyboard.dismiss();
+    setSending(true);
+    try {
+      await onSendMessage?.(text);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -59,8 +66,8 @@ export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSend
 
       <View style={styles.composer}>
         <TextField placeholder="Type a message..." onChangeText={setDraft} onSubmitEditing={send} style={styles.input} value={draft} />
-        <Pressable style={styles.send} onPress={send}>
-          <Feather name="send" color={colors.white} size={18} />
+        <Pressable disabled={sending} style={[styles.send, sending && styles.sendDisabled]} onPress={send}>
+          <Feather name={sending ? "clock" : "send"} color={colors.white} size={18} />
         </Pressable>
       </View>
     </Screen>
@@ -169,5 +176,8 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     width: 50
+  },
+  sendDisabled: {
+    opacity: 0.6
   }
 });
