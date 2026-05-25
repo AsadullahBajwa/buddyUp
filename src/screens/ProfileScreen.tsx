@@ -5,21 +5,26 @@ import { Pill } from "../components/Pill";
 import { Screen } from "../components/Screen";
 import { StatCard } from "../components/StatCard";
 import { colors, radii, spacing } from "../theme";
-import { Goal, LocalUser } from "../types/app";
+import { Commitment, Goal, LocalUser } from "../types/app";
 
 type ProfileScreenProps = {
+  commitments?: Commitment[];
   user?: LocalUser | null;
   goals?: Goal[];
   matchesCount?: number;
   onLogout?: () => void;
 };
 
-export function ProfileScreen({ user, goals = [], matchesCount = 0, onLogout }: ProfileScreenProps) {
+export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout }: ProfileScreenProps) {
   const displayName = user?.username || "alex_productive";
   const level = user?.level ?? 12;
   const xp = user?.xp ?? 2460;
   const nextLevelXp = Math.max(300, level * 300);
   const xpProgress = Math.min(100, Math.round((xp / nextLevelXp) * 100));
+  const progress = goals.length ? Math.round((goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length) * 100) : 0;
+  const strongestGoal = goals.length ? [...goals].sort((a, b) => b.progress - a.progress)[0] : null;
+  const focusGoal = goals.length ? [...goals].sort((a, b) => a.progress - b.progress)[0] : null;
+  const completedPromises = commitments.filter((commitment) => commitment.status === "completed").length;
 
   return (
     <Screen footerSpace>
@@ -49,6 +54,32 @@ export function ProfileScreen({ user, goals = [], matchesCount = 0, onLogout }: 
           {(user?.goals?.length ? user.goals : goals.map((goal) => goal.category).slice(0, 3)).map((goal, index) => (
             <Pill key={`${goal}-${index}`} label={goal} tone={index === 0 ? "orange" : index === 1 ? "green" : "purple"} />
           ))}
+        </View>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Weekly insights</Text>
+        <View style={styles.insightGrid}>
+          <View style={styles.insight}>
+            <Text style={styles.insightValue}>{progress}%</Text>
+            <Text style={styles.insightLabel}>Goal progress</Text>
+          </View>
+          <View style={styles.insight}>
+            <Text style={styles.insightValue}>{user?.reliabilityScore ?? 70}%</Text>
+            <Text style={styles.insightLabel}>Reliability</Text>
+          </View>
+        </View>
+        <View style={styles.insightRow}>
+          <Feather name="trending-up" color={colors.emerald} size={18} />
+          <Text style={styles.insightText}>Strongest: {strongestGoal?.title ?? "Pick your first goal"}</Text>
+        </View>
+        <View style={styles.insightRow}>
+          <Feather name="target" color={colors.orange} size={18} />
+          <Text style={styles.insightText}>Next focus: {focusGoal?.title ?? "Create a routine"}</Text>
+        </View>
+        <View style={styles.insightRow}>
+          <Feather name="check-circle" color={colors.purple} size={18} />
+          <Text style={styles.insightText}>{completedPromises} promise{completedPromises === 1 ? "" : "s"} closed this week</Text>
         </View>
       </View>
 
@@ -145,6 +176,43 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
     marginTop: spacing.md
+  },
+  insightGrid: {
+    flexDirection: "row",
+    gap: spacing.md,
+    marginTop: spacing.lg
+  },
+  insight: {
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.line,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flex: 1,
+    padding: spacing.md
+  },
+  insightValue: {
+    color: colors.text,
+    fontSize: 22,
+    fontWeight: "900"
+  },
+  insightLabel: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800",
+    marginTop: spacing.xs
+  },
+  insightRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.md
+  },
+  insightText: {
+    color: colors.soft,
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "800",
+    lineHeight: 18
   },
   pills: {
     flexDirection: "row",

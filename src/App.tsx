@@ -299,7 +299,15 @@ export default function App() {
       {route === "discover" ? <DiscoverScreen onMatch={handleMatch} /> : null}
       {route === "checkin" ? <CheckInScreen goals={goals} isSubmitting={isSavingCheckIn} onSubmit={handleCheckIn} /> : null}
       {route === "chat" ? <ChatScreen buddy={activeBuddy} messages={messages} onSendMessage={handleSendMessage} /> : null}
-      {route === "profile" ? <ProfileScreen user={user} goals={goals} matchesCount={matches.length} onLogout={handleLogout} /> : null}
+      {route === "profile" ? (
+        <ProfileScreen
+          commitments={commitments}
+          goals={goals}
+          matchesCount={matches.length}
+          onLogout={handleLogout}
+          user={user}
+        />
+      ) : null}
       <BottomTabs active={activeTab} onChange={setRoute} />
     </SafeAreaProvider>
   );
