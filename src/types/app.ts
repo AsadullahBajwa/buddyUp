@@ -92,3 +92,14 @@ export type BuddyMatch = {
   status: "matched" | "pending" | "declined";
   createdAt: string;
 };
+
+export type Commitment = {
+  id: string;
+  userId: string;
+  goalId?: string;
+  title: string;
+  status: "open" | "completed";
+  dueAt: string;
+  createdAt: string;
+  completedAt?: string;
+};

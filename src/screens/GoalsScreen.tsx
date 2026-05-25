@@ -5,18 +5,29 @@ import { ProgressBar } from "../components/ProgressBar";
 import { Screen } from "../components/Screen";
 import { goals } from "../data/mockData";
 import { colors, radii, spacing } from "../theme";
-import { Goal } from "../types/app";
+import { Commitment, Goal } from "../types/app";
 
 type GoalsScreenProps = {
+  commitments?: Commitment[];
   goals?: Goal[];
+  onAddCommitment?: () => void;
+  onCompleteCommitment?: (commitmentId: string) => void;
   onOpenCommunity?: () => void;
   onOpenCoach?: () => void;
 };
 
-export function GoalsScreen({ goals: currentGoals = goals, onOpenCommunity, onOpenCoach }: GoalsScreenProps) {
+export function GoalsScreen({
+  commitments = [],
+  goals: currentGoals = goals,
+  onAddCommitment,
+  onCompleteCommitment,
+  onOpenCommunity,
+  onOpenCoach
+}: GoalsScreenProps) {
   const overall = currentGoals.length
     ? Math.round((currentGoals.reduce((sum, goal) => sum + goal.progress, 0) / currentGoals.length) * 100)
     : 0;
+  const openCommitments = commitments.filter((commitment) => commitment.status === "open").slice(0, 3);
 
   return (
     <Screen footerSpace>
@@ -44,6 +55,32 @@ export function GoalsScreen({ goals: currentGoals = goals, onOpenCommunity, onOp
           <Feather name="zap" color={colors.purple} size={19} />
           <Text style={styles.quickText}>AI coach</Text>
         </Pressable>
+      </View>
+
+      <View style={styles.commitmentsCard}>
+        <View style={styles.cardHeader}>
+          <View>
+            <Text style={styles.cardTitle}>Accountability promises</Text>
+            <Text style={styles.cardSubtitle}>{openCommitments.length} active today</Text>
+          </View>
+          <Pressable style={styles.addPromise} onPress={onAddCommitment}>
+            <Feather name="plus" color={colors.white} size={18} />
+          </Pressable>
+        </View>
+        {openCommitments.length ? (
+          <View style={styles.promiseList}>
+            {openCommitments.map((commitment) => (
+              <Pressable key={commitment.id} style={styles.promiseRow} onPress={() => onCompleteCommitment?.(commitment.id)}>
+                <View style={styles.promiseCheck}>
+                  <Feather name="check" color={colors.emerald} size={15} />
+                </View>
+                <Text style={styles.promiseText}>{commitment.title}</Text>
+              </Pressable>
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.emptyPromise}>Add one promise for today and close the loop when it is done.</Text>
+        )}
       </View>
 
       <View style={styles.goalList}>
@@ -143,6 +180,70 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 14,
     fontWeight: "900"
+  },
+  commitmentsCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    marginTop: spacing.xl,
+    padding: spacing.lg
+  },
+  cardHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  cardTitle: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: "900"
+  },
+  cardSubtitle: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800",
+    marginTop: spacing.xs
+  },
+  addPromise: {
+    alignItems: "center",
+    backgroundColor: colors.orange,
+    borderRadius: radii.pill,
+    height: 40,
+    justifyContent: "center",
+    width: 40
+  },
+  promiseList: {
+    gap: spacing.md,
+    marginTop: spacing.lg
+  },
+  promiseRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.md
+  },
+  promiseCheck: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.emerald,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    height: 28,
+    justifyContent: "center",
+    width: 28
+  },
+  promiseText: {
+    color: colors.soft,
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "800",
+    lineHeight: 18
+  },
+  emptyPromise: {
+    color: colors.soft,
+    fontSize: 13,
+    lineHeight: 19,
+    marginTop: spacing.lg
   },
   goalList: {
     gap: spacing.lg,

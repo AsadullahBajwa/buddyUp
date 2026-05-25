@@ -1,6 +1,6 @@
 import Constants from "expo-constants";
 
-import { Buddy, BuddyMatch, ChatMessage, FeedPost, Goal, GoalCategory, LocalUser } from "../types/app";
+import { Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, GoalCategory, LocalUser } from "../types/app";
 
 type ApiResponse<T> = T & {
   error?: string;
@@ -60,7 +60,7 @@ export const api = {
     });
   },
   dashboard(userId: string) {
-    return request<{ user: LocalUser; goals: Goal[]; matches: BuddyMatch[]; posts: FeedPost[] }>(`/dashboard?userId=${userId}`);
+    return request<{ user: LocalUser; goals: Goal[]; matches: BuddyMatch[]; posts: FeedPost[]; commitments: Commitment[] }>(`/dashboard?userId=${userId}`);
   },
   buddies(seriousOnly: boolean) {
     return request<{ buddies: Buddy[] }>(`/buddies?seriousOnly=${seriousOnly}`);
@@ -104,6 +104,17 @@ export const api = {
     return request<{ post: FeedPost; posts: FeedPost[] }>(`/community/posts/${postId}/comments`, {
       method: "POST",
       body: JSON.stringify({ body })
+    });
+  },
+  createCommitment(input: { userId: string; title: string; goalId?: string; dueAt?: string }) {
+    return request<{ commitment: Commitment; commitments: Commitment[] }>("/commitments", {
+      method: "POST",
+      body: JSON.stringify(input)
+    });
+  },
+  completeCommitment(commitmentId: string) {
+    return request<{ commitment: Commitment; commitments: Commitment[]; user: LocalUser }>(`/commitments/${commitmentId}/complete`, {
+      method: "PATCH"
     });
   },
   coachPlan(userId: string) {

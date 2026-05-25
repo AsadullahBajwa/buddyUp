@@ -18,7 +18,7 @@ import { ProfileSetupScreen } from "./screens/ProfileSetupScreen";
 import { SplashScreen } from "./screens/SplashScreen";
 import { api } from "./services/api";
 import { buddies as seedBuddies, chatMessages as seedMessages, feedPosts as seedPosts, goals as seedGoals } from "./data/mockData";
-import { Buddy, BuddyMatch, ChatMessage, FeedPost, Goal, LocalUser, TabKey } from "./types/app";
+import { Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, LocalUser, TabKey } from "./types/app";
 
 type AuthStep = "splash" | "onboarding" | "auth" | "profile" | "main";
 type RouteKey = TabKey | "community" | "coach";
@@ -30,6 +30,7 @@ export default function App() {
   const [user, setUser] = useState<LocalUser | null>(null);
   const [goals, setGoals] = useState<Goal[]>(seedGoals);
   const [posts, setPosts] = useState<FeedPost[]>(seedPosts);
+  const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [matches, setMatches] = useState<BuddyMatch[]>([]);
   const [activeBuddy, setActiveBuddy] = useState<Buddy>(seedBuddies[0]);
   const [activeMatchId, setActiveMatchId] = useState("");
@@ -54,6 +55,7 @@ export default function App() {
       setGoals(data.goals);
       setMatches(data.matches);
       setPosts(data.posts);
+      setCommitments(data.commitments);
       setRoute("home");
       setAuthStep("main");
     } catch (error) {
@@ -72,6 +74,7 @@ export default function App() {
         setGoals(data.goals);
         setMatches(data.matches);
         setPosts(data.posts);
+        setCommitments(data.commitments);
       })
       .catch(() => undefined);
   }, [user?.id]);
@@ -197,8 +200,35 @@ export default function App() {
     setUser(null);
     setMatches([]);
     setMessages(seedMessages);
+    setCommitments([]);
     setRoute("home");
     setAuthStep("auth");
+  }
+
+  async function handleAddCommitment() {
+    if (!user) return;
+    const priorityGoal = goals.find((goal) => goal.progress < 1) ?? goals[0];
+    const title = priorityGoal ? `Finish one ${priorityGoal.category.toLowerCase()} session today` : "Finish one focused session today";
+    try {
+      const data = await api.createCommitment({
+        userId: user.id,
+        goalId: priorityGoal?.id,
+        title
+      });
+      setCommitments(data.commitments);
+    } catch (error) {
+      Alert.alert("Commitment failed", error instanceof Error ? error.message : "Could not create commitment");
+    }
+  }
+
+  async function handleCompleteCommitment(commitmentId: string) {
+    try {
+      const data = await api.completeCommitment(commitmentId);
+      setUser(data.user);
+      setCommitments(data.commitments);
+    } catch (error) {
+      Alert.alert("Commitment failed", error instanceof Error ? error.message : "Could not complete commitment");
+    }
   }
 
   if (authStep === "splash") {
@@ -248,7 +278,14 @@ export default function App() {
     <SafeAreaProvider>
       <StatusBar style="light" />
       {route === "home" ? (
-        <GoalsScreen goals={goals} onOpenCommunity={() => setRoute("community")} onOpenCoach={() => setRoute("coach")} />
+        <GoalsScreen
+          commitments={commitments}
+          goals={goals}
+          onAddCommitment={handleAddCommitment}
+          onCompleteCommitment={handleCompleteCommitment}
+          onOpenCommunity={() => setRoute("community")}
+          onOpenCoach={() => setRoute("coach")}
+        />
       ) : null}
       {route === "community" ? (
         <CommunityScreen

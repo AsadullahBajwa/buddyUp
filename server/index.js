@@ -31,6 +31,7 @@ function seedDatabase() {
     users: [],
     goals: [],
     matches: [],
+    commitments: [],
     checkIns: [],
     messages: [],
     posts: [
@@ -122,7 +123,7 @@ function writeDb(db, dataFile = defaultDataFile) {
   fs.writeFileSync(dataFile, JSON.stringify(db, null, 2));
 }
 
-const collectionNames = ["users", "goals", "matches", "checkIns", "messages", "posts", "buddies"];
+const collectionNames = ["users", "goals", "matches", "commitments", "checkIns", "messages", "posts", "buddies"];
 
 function normalizeDatabase(db) {
   const seeded = seedDatabase();
@@ -130,6 +131,7 @@ function normalizeDatabase(db) {
     users: db.users || [],
     goals: db.goals || [],
     matches: db.matches || [],
+    commitments: db.commitments || [],
     checkIns: db.checkIns || [],
     messages: db.messages || [],
     posts: db.posts?.length ? db.posts : seeded.posts,
@@ -445,6 +447,7 @@ function createBuddyUpServer(options = {}) {
         user: publicUser(user),
         goals: db.goals.filter((goal) => goal.userId === userId),
         matches: db.matches.filter((match) => match.userId === userId),
+        commitments: db.commitments.filter((commitment) => commitment.userId === userId),
         posts: db.posts
       });
     }
@@ -544,6 +547,48 @@ function createBuddyUpServer(options = {}) {
         checkIn,
         user: publicUser(user),
         goals: db.goals.filter((goal) => goal.userId === body.userId)
+      });
+    }
+
+    if (req.method === "POST" && url.pathname === "/commitments") {
+      const body = await parseBody(req);
+      const user = db.users.find((item) => item.id === body.userId);
+      if (!user) return json(res, 404, { error: "User not found" });
+      const title = String(body.title || "").trim();
+      if (!title) return json(res, 400, { error: "Commitment title is required" });
+      const commitment = {
+        id: id("commitment"),
+        userId: user.id,
+        goalId: body.goalId || "",
+        title,
+        status: "open",
+        dueAt: body.dueAt || now(),
+        createdAt: now()
+      };
+      db.commitments.unshift(commitment);
+      await store.write(db);
+      return json(res, 200, {
+        commitment,
+        commitments: db.commitments.filter((item) => item.userId === user.id)
+      });
+    }
+
+    if (req.method === "PATCH" && parts[0] === "commitments" && parts[1] && parts[2] === "complete") {
+      const commitment = db.commitments.find((item) => item.id === parts[1]);
+      if (!commitment) return json(res, 404, { error: "Commitment not found" });
+      commitment.status = "completed";
+      commitment.completedAt = now();
+      const user = db.users.find((item) => item.id === commitment.userId);
+      if (user) {
+        user.xp += 15;
+        user.reliabilityScore = Math.min(99, user.reliabilityScore + 1);
+        user.updatedAt = now();
+      }
+      await store.write(db);
+      return json(res, 200, {
+        commitment,
+        commitments: db.commitments.filter((item) => item.userId === commitment.userId),
+        user: publicUser(user)
       });
     }
 

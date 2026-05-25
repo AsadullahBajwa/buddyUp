@@ -167,6 +167,34 @@ test("check-in updates goal progress, streak, XP, level inputs", async () => {
   });
 });
 
+test("commitments can be created and completed for accountability credit", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    const created = await api(baseUrl, "/commitments", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: user.id,
+        title: "Finish one study sprint"
+      })
+    });
+
+    assert.equal(created.response.status, 200);
+    assert.equal(created.body.commitment.status, "open");
+
+    const dashboard = await api(baseUrl, `/dashboard?userId=${user.id}`);
+    assert.equal(dashboard.body.commitments.length, 1);
+
+    const completed = await api(baseUrl, `/commitments/${created.body.commitment.id}/complete`, {
+      method: "PATCH"
+    });
+
+    assert.equal(completed.response.status, 200);
+    assert.equal(completed.body.commitment.status, "completed");
+    assert.equal(completed.body.user.xp, 15);
+    assert.equal(completed.body.user.reliabilityScore, 71);
+  });
+});
+
 test("buddy matching creates a match and starter message", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
