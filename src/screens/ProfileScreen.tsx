@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { Pill } from "../components/Pill";
@@ -11,9 +11,10 @@ type ProfileScreenProps = {
   user?: LocalUser | null;
   goals?: Goal[];
   matchesCount?: number;
+  onLogout?: () => void;
 };
 
-export function ProfileScreen({ user, goals = [], matchesCount = 0 }: ProfileScreenProps) {
+export function ProfileScreen({ user, goals = [], matchesCount = 0, onLogout }: ProfileScreenProps) {
   const displayName = user?.username || "alex_productive";
   const level = user?.level ?? 12;
   const xp = user?.xp ?? 2460;
@@ -64,6 +65,11 @@ export function ProfileScreen({ user, goals = [], matchesCount = 0 }: ProfileScr
           ))}
         </View>
       </View>
+
+      <Pressable style={styles.logout} onPress={onLogout}>
+        <Feather name="log-out" color={colors.red} size={18} />
+        <Text style={styles.logoutText}>Log out</Text>
+      </Pressable>
     </Screen>
   );
 }
@@ -160,5 +166,19 @@ const styles = StyleSheet.create({
     height: 68,
     justifyContent: "center",
     width: 68
+  },
+  logout: {
+    alignItems: "center",
+    alignSelf: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md
+  },
+  logoutText: {
+    color: colors.red,
+    fontSize: 14,
+    fontWeight: "900"
   }
 });

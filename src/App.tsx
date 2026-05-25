@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -21,6 +22,7 @@ import { Buddy, BuddyMatch, ChatMessage, FeedPost, Goal, LocalUser, TabKey } fro
 
 type AuthStep = "splash" | "onboarding" | "auth" | "profile" | "main";
 type RouteKey = TabKey | "community" | "coach";
+const SESSION_USER_ID = "buddyup:userId";
 
 export default function App() {
   const [authStep, setAuthStep] = useState<AuthStep>("splash");
@@ -33,10 +35,34 @@ export default function App() {
   const [activeMatchId, setActiveMatchId] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>(seedMessages);
   const [isSavingCheckIn, setIsSavingCheckIn] = useState(false);
+  const [isRestoringSession, setIsRestoringSession] = useState(false);
 
-  const enterOnboarding = useCallback(() => setAuthStep("onboarding"), []);
   const enterAuth = useCallback(() => setAuthStep("auth"), []);
   const enterMain = useCallback(() => setAuthStep("main"), []);
+
+  const restoreOrStart = useCallback(async () => {
+    if (isRestoringSession) return;
+    setIsRestoringSession(true);
+    try {
+      const userId = await AsyncStorage.getItem(SESSION_USER_ID);
+      if (!userId) {
+        setAuthStep("onboarding");
+        return;
+      }
+      const data = await api.dashboard(userId);
+      setUser(data.user);
+      setGoals(data.goals);
+      setMatches(data.matches);
+      setPosts(data.posts);
+      setRoute("home");
+      setAuthStep("main");
+    } catch (error) {
+      await AsyncStorage.removeItem(SESSION_USER_ID);
+      setAuthStep("onboarding");
+    } finally {
+      setIsRestoringSession(false);
+    }
+  }, [isRestoringSession]);
 
   useEffect(() => {
     if (!user) return;
@@ -54,6 +80,7 @@ export default function App() {
     try {
       const data = await api.signup(input);
       setUser(data.user);
+      await AsyncStorage.setItem(SESSION_USER_ID, data.user.id);
       setAuthStep("profile");
     } catch (error) {
       Alert.alert("Signup failed", error instanceof Error ? error.message : "Could not create account");
@@ -64,6 +91,7 @@ export default function App() {
     try {
       const data = await api.login(input);
       setUser(data.user);
+      await AsyncStorage.setItem(SESSION_USER_ID, data.user.id);
       enterMain();
     } catch (error) {
       Alert.alert("Login failed", error instanceof Error ? error.message : "Could not sign in");
@@ -74,6 +102,7 @@ export default function App() {
     try {
       const data = await api.googleSignup(accessToken);
       setUser(data.user);
+      await AsyncStorage.setItem(SESSION_USER_ID, data.user.id);
       setAuthStep("profile");
     } catch (error) {
       Alert.alert("Google sign-in failed", error instanceof Error ? error.message : "Could not connect Google account");
@@ -86,6 +115,7 @@ export default function App() {
       const data = await api.updateProfile(user.id, input);
       setUser(data.user);
       setGoals(data.goals);
+      await AsyncStorage.setItem(SESSION_USER_ID, data.user.id);
       enterMain();
     } catch (error) {
       Alert.alert("Profile setup failed", error instanceof Error ? error.message : "Could not save profile");
@@ -162,11 +192,20 @@ export default function App() {
     setPosts(data.posts);
   }
 
+  async function handleLogout() {
+    await AsyncStorage.removeItem(SESSION_USER_ID);
+    setUser(null);
+    setMatches([]);
+    setMessages(seedMessages);
+    setRoute("home");
+    setAuthStep("auth");
+  }
+
   if (authStep === "splash") {
     return (
       <SafeAreaProvider>
         <StatusBar style="light" />
-        <SplashScreen onDone={enterOnboarding} />
+        <SplashScreen onDone={restoreOrStart} />
       </SafeAreaProvider>
     );
   }
@@ -223,7 +262,7 @@ export default function App() {
       {route === "discover" ? <DiscoverScreen onMatch={handleMatch} /> : null}
       {route === "checkin" ? <CheckInScreen goals={goals} isSubmitting={isSavingCheckIn} onSubmit={handleCheckIn} /> : null}
       {route === "chat" ? <ChatScreen buddy={activeBuddy} messages={messages} onSendMessage={handleSendMessage} /> : null}
-      {route === "profile" ? <ProfileScreen user={user} goals={goals} matchesCount={matches.length} /> : null}
+      {route === "profile" ? <ProfileScreen user={user} goals={goals} matchesCount={matches.length} onLogout={handleLogout} /> : null}
       <BottomTabs active={activeTab} onChange={setRoute} />
     </SafeAreaProvider>
   );
