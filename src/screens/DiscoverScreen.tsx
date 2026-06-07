@@ -1,4 +1,4 @@
-import { ImageBackground, Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { ActivityIndicator, Alert, ImageBackground, Pressable, StyleSheet, Switch, Text, View } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 
@@ -17,16 +17,21 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
   const [index, setIndex] = useState(0);
   const [seriousOnly, setSeriousOnly] = useState(true);
   const [remoteBuddies, setRemoteBuddies] = useState<Buddy[]>(buddies);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const pool = useMemo(() => remoteBuddies.filter((buddy) => !seriousOnly || buddy.serious), [remoteBuddies, seriousOnly]);
-  const buddy = pool[index % pool.length] ?? buddies[0];
+  const buddy = pool.length ? pool[index % pool.length] : null;
 
   useEffect(() => {
+    setIsLoading(true);
+    setLoadError("");
     api.buddies(seriousOnly)
       .then((data) => {
         setRemoteBuddies(data.buddies);
         setIndex(0);
       })
-      .catch(() => undefined);
+      .catch(() => setLoadError("Could not refresh buddies. Showing saved suggestions."))
+      .finally(() => setIsLoading(false));
   }, [seriousOnly]);
 
   function nextBuddy() {
@@ -34,8 +39,17 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
   }
 
   function likeBuddy() {
+    if (!buddy) return;
     onMatch?.(buddy);
     nextBuddy();
+  }
+
+  function showBuddyInfo() {
+    if (!buddy) return;
+    Alert.alert(
+      `${buddy.name}'s match style`,
+      `${buddy.activityLevel} activity, ${buddy.communicationStyle.toLowerCase()}, ${buddy.streakDays}-day streak.`
+    );
   }
 
   return (
@@ -60,31 +74,46 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
         />
       </View>
 
-      <ImageBackground source={{ uri: buddy.avatar }} style={styles.card} imageStyle={styles.cardImage}>
-        <View style={styles.overlay} />
-        <View style={styles.score}>
-          <Ionicons name="shield-checkmark" color={colors.emerald} size={18} />
-          <Text style={styles.scoreText}>{buddy.reliabilityScore}% reliable</Text>
+      {loadError ? <Text style={styles.errorText}>{loadError}</Text> : null}
+
+      {isLoading ? (
+        <View style={styles.loadingCard}>
+          <ActivityIndicator color={colors.orange} />
+          <Text style={styles.loadingText}>Refreshing buddy suggestions...</Text>
         </View>
-        <View style={styles.cardCopy}>
-          <Text style={styles.name}>
-            {buddy.name}, {buddy.age}
-          </Text>
-          <Text style={styles.location}>{buddy.city} · {buddy.timezone}</Text>
-          <Text style={styles.headline}>{buddy.headline}</Text>
-          <View style={styles.pills}>
-            {buddy.goals.map((goal, goalIndex) => (
-              <Pill key={goal} label={goal} tone={goalIndex === 0 ? "orange" : "default"} />
-            ))}
+      ) : buddy ? (
+        <ImageBackground source={{ uri: buddy.avatar }} style={styles.card} imageStyle={styles.cardImage}>
+          <View style={styles.overlay} />
+          <View style={styles.score}>
+            <Ionicons name="shield-checkmark" color={colors.emerald} size={18} />
+            <Text style={styles.scoreText}>{buddy.reliabilityScore}% reliable</Text>
           </View>
+          <View style={styles.cardCopy}>
+            <Text style={styles.name}>
+              {buddy.name}, {buddy.age}
+            </Text>
+            <Text style={styles.location}>{buddy.city} - {buddy.timezone}</Text>
+            <Text style={styles.headline}>{buddy.headline}</Text>
+            <View style={styles.pills}>
+              {buddy.goals.map((goal, goalIndex) => (
+                <Pill key={goal} label={goal} tone={goalIndex === 0 ? "orange" : "default"} />
+              ))}
+            </View>
+          </View>
+        </ImageBackground>
+      ) : (
+        <View style={styles.emptyCard}>
+          <Feather name="users" color={colors.orange} size={32} />
+          <Text style={styles.emptyTitle}>No buddies found</Text>
+          <Text style={styles.emptyText}>Try turning off the serious partner filter.</Text>
         </View>
-      </ImageBackground>
+      )}
 
       <View style={styles.actions}>
         <Pressable style={styles.round} onPress={nextBuddy}>
           <Feather name="x" color={colors.soft} size={28} />
         </Pressable>
-        <Pressable style={styles.round}>
+        <Pressable style={styles.round} onPress={showBuddyInfo}>
           <Feather name="info" color={colors.blue} size={25} />
         </Pressable>
         <Pressable style={[styles.round, styles.like]} onPress={likeBuddy}>
@@ -142,6 +171,49 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     borderRadius: radii.xl
+  },
+  loadingCard: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.xl,
+    borderWidth: 1,
+    gap: spacing.md,
+    height: 480,
+    justifyContent: "center"
+  },
+  loadingText: {
+    color: colors.soft,
+    fontSize: 14,
+    fontWeight: "800"
+  },
+  errorText: {
+    color: colors.yellow,
+    fontSize: 12,
+    fontWeight: "800",
+    marginBottom: spacing.md
+  },
+  emptyCard: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.xl,
+    borderWidth: 1,
+    gap: spacing.md,
+    height: 480,
+    justifyContent: "center",
+    padding: spacing.xl
+  },
+  emptyTitle: {
+    color: colors.text,
+    fontSize: 20,
+    fontWeight: "900"
+  },
+  emptyText: {
+    color: colors.soft,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center"
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
