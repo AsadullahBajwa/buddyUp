@@ -292,6 +292,31 @@ function coachReply(text, goals) {
   return "Start with one visible action and check in when it is done.";
 }
 
+function buildWeeklyReport(user, goals, commitments, checkIns, matches) {
+  const overallProgress = goals.length
+    ? Math.round((goals.reduce((sum, goal) => sum + Number(goal.progress || 0), 0) / goals.length) * 100)
+    : 0;
+  const strongestGoal = goals.length ? [...goals].sort((a, b) => Number(b.progress || 0) - Number(a.progress || 0))[0] : null;
+  const focusGoal = goals.length ? [...goals].sort((a, b) => Number(a.progress || 0) - Number(b.progress || 0))[0] : null;
+  const completedCommitments = commitments.filter((commitment) => commitment.status === "completed").length;
+
+  return {
+    userId: user.id,
+    overallProgress,
+    reliabilityScore: user.reliabilityScore,
+    checkIns: checkIns.length,
+    completedCommitments,
+    activeBuddies: matches.filter((match) => match.status === "matched").length,
+    strongestGoal: strongestGoal?.title || "",
+    focusGoal: focusGoal?.title || "",
+    nextActions: [
+      focusGoal ? `Give ${focusGoal.title} your first focused session.` : "Create your first goal.",
+      commitments.some((commitment) => commitment.status === "open") ? "Close one open promise today." : "Add one promise for today.",
+      matches.length ? "Send your buddy a proof update." : "Match with one accountability buddy."
+    ]
+  };
+}
+
 async function askOllama(text, goals) {
   if (!OLLAMA_ENABLED) throw new Error("Ollama is disabled");
 
@@ -473,6 +498,21 @@ function createBuddyUpServer(options = {}) {
       const seriousOnly = url.searchParams.get("seriousOnly") === "true";
       const buddies = seriousOnly ? db.buddies.filter((buddy) => buddy.serious) : db.buddies;
       return json(res, 200, { buddies });
+    }
+
+    if (req.method === "GET" && url.pathname === "/reports/weekly") {
+      const userId = url.searchParams.get("userId");
+      const user = db.users.find((item) => item.id === userId);
+      if (!user) return json(res, 404, { error: "User not found" });
+      return json(res, 200, {
+        report: buildWeeklyReport(
+          publicUser(user),
+          db.goals.filter((goal) => goal.userId === userId),
+          db.commitments.filter((commitment) => commitment.userId === userId),
+          db.checkIns.filter((checkIn) => checkIn.userId === userId),
+          db.matches.filter((match) => match.userId === userId)
+        )
+      });
     }
 
     if (req.method === "POST" && url.pathname === "/matches") {
@@ -706,6 +746,7 @@ if (require.main === module) {
 module.exports = {
   createBuddyUpServer,
   seedDatabase,
+  buildWeeklyReport,
   coachPlan,
   coachReply
 };

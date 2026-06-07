@@ -227,6 +227,31 @@ test("commitments can be created and completed for accountability credit", async
   });
 });
 
+test("weekly report summarizes accountability progress", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    const dashboard = await api(baseUrl, `/dashboard?userId=${user.id}`);
+    const goalId = dashboard.body.goals[0].id;
+    const commitment = await api(baseUrl, "/commitments", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, goalId, title: "Study for 45 minutes" })
+    });
+    await api(baseUrl, `/commitments/${commitment.body.commitment.id}/complete`, { method: "PATCH" });
+    await api(baseUrl, "/checkins", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, completedTaskIds: [goalId], note: "Done", type: "text" })
+    });
+
+    const report = await api(baseUrl, `/reports/weekly?userId=${user.id}`);
+
+    assert.equal(report.response.status, 200);
+    assert.equal(report.body.report.completedCommitments, 1);
+    assert.equal(report.body.report.checkIns, 1);
+    assert.ok(report.body.report.overallProgress > 0);
+    assert.ok(report.body.report.nextActions.length >= 3);
+  });
+});
+
 test("buddy matching creates a match and starter message", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
