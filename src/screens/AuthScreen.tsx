@@ -12,8 +12,8 @@ import { TextField } from "../components/TextField";
 import { colors, radii, spacing } from "../theme";
 
 type AuthScreenProps = {
-  onAuthenticated: (input: { name: string; email: string; password: string }) => void;
-  onLogin?: (input: { email: string; password: string }) => void;
+  onAuthenticated: (input: { name: string; email: string; password: string }) => Promise<void> | void;
+  onLogin?: (input: { email: string; password: string }) => Promise<void> | void;
   onGoogleAuthenticated?: (accessToken: string) => void;
   onAuthError?: (message: string) => void;
 };
@@ -82,15 +82,35 @@ export function AuthScreen({ onAuthenticated, onLogin, onGoogleAuthenticated, on
   const [name, setName] = useState("Alex Carter");
   const [email, setEmail] = useState("alex@buddyup.test");
   const [password, setPassword] = useState("buddyup123");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const googleConfig = useMemo(getGoogleClientConfig, []);
   const isLogin = mode === "login";
 
-  function submit() {
-    if (isLogin) {
-      onLogin?.({ email, password });
+  async function submit() {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!isLogin && !name.trim()) {
+      onAuthError?.("Please enter your name.");
       return;
     }
-    onAuthenticated({ name, email, password });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      onAuthError?.("Please enter a valid email address.");
+      return;
+    }
+    if (password.length < 6) {
+      onAuthError?.("Password must be at least 6 characters.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (isLogin) {
+        await onLogin?.({ email: normalizedEmail, password });
+        return;
+      }
+      await onAuthenticated({ name: name.trim(), email: normalizedEmail, password });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function googleSignIn() {
@@ -120,7 +140,11 @@ export function AuthScreen({ onAuthenticated, onLogin, onGoogleAuthenticated, on
         {!isLogin ? <TextField placeholder="Full name" autoCapitalize="words" onChangeText={setName} value={name} /> : null}
         <TextField placeholder="Email" keyboardType="email-address" autoCapitalize="none" onChangeText={setEmail} value={email} />
         <TextField placeholder="Password" secureTextEntry onChangeText={setPassword} value={password} />
-        <GradientButton label={isLogin ? "Log In" : "Sign Up"} onPress={submit} />
+        <GradientButton
+          disabled={isSubmitting}
+          label={isSubmitting ? "Working..." : isLogin ? "Log In" : "Sign Up"}
+          onPress={submit}
+        />
       </View>
 
       <View style={styles.dividerRow}>
