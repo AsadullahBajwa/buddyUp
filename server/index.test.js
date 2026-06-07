@@ -94,6 +94,20 @@ test("email login returns an existing public user", async () => {
   });
 });
 
+test("invalid JSON returns a client error", async () => {
+  await withApi(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/auth/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{not-json"
+    });
+    const body = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(body.error, "Request body must be valid JSON");
+  });
+});
+
 test("google auth connects a verified Google profile to a local user", async () => {
   await withApi(async (baseUrl) => {
     const { response, body } = await api(baseUrl, "/auth/google", {

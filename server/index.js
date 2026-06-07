@@ -11,6 +11,7 @@ const DATA_STORE = process.env.DATA_STORE || "json";
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5";
 const OLLAMA_ENABLED = process.env.OLLAMA_ENABLED !== "false";
+const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES || 64 * 1024);
 
 const colors = ["#FF7A00", "#00D084", "#7C3AED", "#2F80ED", "#FFB347"];
 
@@ -226,15 +227,24 @@ function parseBody(req) {
     let raw = "";
     req.on("data", (chunk) => {
       raw += chunk;
+      if (Buffer.byteLength(raw) > MAX_BODY_BYTES) {
+        const error = new Error("Request body is too large");
+        error.statusCode = 413;
+        req.destroy(error);
+        reject(error);
+      }
     });
     req.on("end", () => {
       if (!raw) return resolve({});
       try {
         resolve(JSON.parse(raw));
       } catch (error) {
+        error.statusCode = 400;
+        error.message = "Request body must be valid JSON";
         reject(error);
       }
     });
+    req.on("error", reject);
   });
 }
 
@@ -666,7 +676,7 @@ function createBuddyUpServer(options = {}) {
 
     return json(res, 404, { error: "Route not found" });
   } catch (error) {
-    return json(res, 500, { error: error.message });
+    return json(res, error.statusCode || 500, { error: error.message });
   }
 });
 }
