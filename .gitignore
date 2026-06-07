@@ -9,5 +9,6 @@ expo-server*.log
 server.log
 server.err.log
 server/data/
+buddyup-*.png
 .env
 .env.*
