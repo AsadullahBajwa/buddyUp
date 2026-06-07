@@ -1,8 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useState } from "react";
 
 import { ProgressBar } from "../components/ProgressBar";
 import { Screen } from "../components/Screen";
+import { TextField } from "../components/TextField";
 import { goals } from "../data/mockData";
 import { colors, radii, spacing } from "../theme";
 import { Commitment, Goal } from "../types/app";
@@ -10,7 +12,7 @@ import { Commitment, Goal } from "../types/app";
 type GoalsScreenProps = {
   commitments?: Commitment[];
   goals?: Goal[];
-  onAddCommitment?: () => void;
+  onAddCommitment?: (title?: string) => void;
   onCompleteCommitment?: (commitmentId: string) => void;
   onOpenCommunity?: () => void;
   onOpenCoach?: () => void;
@@ -24,10 +26,18 @@ export function GoalsScreen({
   onOpenCommunity,
   onOpenCoach
 }: GoalsScreenProps) {
+  const [promiseDraft, setPromiseDraft] = useState("");
   const overall = currentGoals.length
     ? Math.round((currentGoals.reduce((sum, goal) => sum + goal.progress, 0) / currentGoals.length) * 100)
     : 0;
   const openCommitments = commitments.filter((commitment) => commitment.status === "open").slice(0, 3);
+
+  function addPromise() {
+    const title = promiseDraft.trim();
+    setPromiseDraft("");
+    Keyboard.dismiss();
+    onAddCommitment?.(title || undefined);
+  }
 
   return (
     <Screen footerSpace>
@@ -63,9 +73,18 @@ export function GoalsScreen({
             <Text style={styles.cardTitle}>Accountability promises</Text>
             <Text style={styles.cardSubtitle}>{openCommitments.length} active today</Text>
           </View>
-          <Pressable style={styles.addPromise} onPress={onAddCommitment}>
+          <Pressable style={styles.addPromise} onPress={addPromise}>
             <Feather name="plus" color={colors.white} size={18} />
           </Pressable>
+        </View>
+        <View style={styles.promiseComposer}>
+          <TextField
+            placeholder="Write today's promise..."
+            onChangeText={setPromiseDraft}
+            onSubmitEditing={addPromise}
+            style={styles.promiseInput}
+            value={promiseDraft}
+          />
         </View>
         {openCommitments.length ? (
           <View style={styles.promiseList}>
@@ -212,6 +231,12 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: "center",
     width: 40
+  },
+  promiseComposer: {
+    marginTop: spacing.lg
+  },
+  promiseInput: {
+    minHeight: 46
   },
   promiseList: {
     gap: spacing.md,

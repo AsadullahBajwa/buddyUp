@@ -205,10 +205,10 @@ export default function App() {
     setAuthStep("auth");
   }
 
-  async function handleAddCommitment() {
+  async function handleAddCommitment(titleOverride?: string) {
     if (!user) return;
     const priorityGoal = goals.find((goal) => goal.progress < 1) ?? goals[0];
-    const title = priorityGoal ? `Finish one ${priorityGoal.category.toLowerCase()} session today` : "Finish one focused session today";
+    const title = titleOverride?.trim() || (priorityGoal ? `Finish one ${priorityGoal.category.toLowerCase()} session today` : "Finish one focused session today");
     try {
       const data = await api.createCommitment({
         userId: user.id,
