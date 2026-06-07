@@ -108,6 +108,24 @@ test("invalid JSON returns a client error", async () => {
   });
 });
 
+test("signup validates email and password inputs", async () => {
+  await withApi(async (baseUrl) => {
+    const invalidEmail = await api(baseUrl, "/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ name: "Bad Email", email: "bad-email", password: "buddyup123" })
+    });
+    assert.equal(invalidEmail.response.status, 400);
+    assert.equal(invalidEmail.body.error, "Email format is invalid");
+
+    const shortPassword = await api(baseUrl, "/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ name: "Short Password", email: "short@buddyup.test", password: "123" })
+    });
+    assert.equal(shortPassword.response.status, 400);
+    assert.equal(shortPassword.body.error, "Password must be at least 6 characters");
+  });
+});
+
 test("google auth connects a verified Google profile to a local user", async () => {
   await withApi(async (baseUrl) => {
     const { response, body } = await api(baseUrl, "/auth/google", {

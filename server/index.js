@@ -23,6 +23,10 @@ function hashPassword(password) {
   return crypto.createHash("sha256").update(String(password)).digest("hex");
 }
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email));
+}
+
 function now() {
   return new Date().toISOString();
 }
@@ -335,6 +339,8 @@ function createBuddyUpServer(options = {}) {
       const body = await parseBody(req);
       const email = String(body.email || "").trim().toLowerCase();
       if (!email) return json(res, 400, { error: "Email is required" });
+      if (!isValidEmail(email)) return json(res, 400, { error: "Email format is invalid" });
+      if (String(body.password || "").length < 6) return json(res, 400, { error: "Password must be at least 6 characters" });
       let user = db.users.find((item) => item.email === email);
       if (!user) {
         user = {
@@ -365,7 +371,8 @@ function createBuddyUpServer(options = {}) {
 
     if (req.method === "POST" && url.pathname === "/auth/login") {
       const body = await parseBody(req);
-      const user = db.users.find((item) => item.email === String(body.email || "").toLowerCase());
+      const email = String(body.email || "").trim().toLowerCase();
+      const user = db.users.find((item) => item.email === email);
       if (!user || user.passwordHash !== hashPassword(body.password || "")) {
         return json(res, 401, { error: "Invalid email or password" });
       }
