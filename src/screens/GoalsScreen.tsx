@@ -14,6 +14,7 @@ type GoalsScreenProps = {
   goals?: Goal[];
   onAddCommitment?: (title?: string) => void;
   onCompleteCommitment?: (commitmentId: string) => void;
+  onDeleteCommitment?: (commitmentId: string) => void;
   onOpenCommunity?: () => void;
   onOpenCoach?: () => void;
 };
@@ -23,6 +24,7 @@ export function GoalsScreen({
   goals: currentGoals = goals,
   onAddCommitment,
   onCompleteCommitment,
+  onDeleteCommitment,
   onOpenCommunity,
   onOpenCoach
 }: GoalsScreenProps) {
@@ -89,12 +91,25 @@ export function GoalsScreen({
         {openCommitments.length ? (
           <View style={styles.promiseList}>
             {openCommitments.map((commitment) => (
-              <Pressable key={commitment.id} style={styles.promiseRow} onPress={() => onCompleteCommitment?.(commitment.id)}>
-                <View style={styles.promiseCheck}>
-                  <Feather name="check" color={colors.emerald} size={15} />
-                </View>
-                <Text style={styles.promiseText}>{commitment.title}</Text>
-              </Pressable>
+              <View key={commitment.id} style={styles.promiseRow}>
+                <Pressable
+                  accessibilityLabel={`Complete ${commitment.title}`}
+                  style={styles.promiseMainAction}
+                  onPress={() => onCompleteCommitment?.(commitment.id)}
+                >
+                  <View style={styles.promiseCheck}>
+                    <Feather name="check" color={colors.emerald} size={15} />
+                  </View>
+                  <Text style={styles.promiseText}>{commitment.title}</Text>
+                </Pressable>
+                <Pressable
+                  accessibilityLabel={`Delete ${commitment.title}`}
+                  style={styles.promiseDelete}
+                  onPress={() => onDeleteCommitment?.(commitment.id)}
+                >
+                  <Feather name="trash-2" color={colors.red} size={16} />
+                </Pressable>
+              </View>
             ))}
           </View>
         ) : (
@@ -247,6 +262,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing.md
   },
+  promiseMainAction: {
+    alignItems: "center",
+    flex: 1,
+    flexDirection: "row",
+    gap: spacing.md
+  },
   promiseCheck: {
     alignItems: "center",
     backgroundColor: colors.surfaceHigh,
@@ -263,6 +284,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "800",
     lineHeight: 18
+  },
+  promiseDelete: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    height: 34,
+    justifyContent: "center",
+    width: 34
   },
   emptyPromise: {
     color: colors.soft,

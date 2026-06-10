@@ -231,6 +231,15 @@ export default function App() {
     }
   }
 
+  async function handleDeleteCommitment(commitmentId: string) {
+    try {
+      const data = await api.deleteCommitment(commitmentId);
+      setCommitments(data.commitments);
+    } catch (error) {
+      Alert.alert("Commitment failed", error instanceof Error ? error.message : "Could not delete commitment");
+    }
+  }
+
   if (authStep === "splash") {
     return (
       <SafeAreaProvider>
@@ -283,6 +292,7 @@ export default function App() {
           goals={goals}
           onAddCommitment={handleAddCommitment}
           onCompleteCommitment={handleCompleteCommitment}
+          onDeleteCommitment={handleDeleteCommitment}
           onOpenCommunity={() => setRoute("community")}
           onOpenCoach={() => setRoute("coach")}
         />
