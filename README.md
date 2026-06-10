@@ -33,16 +33,30 @@ npm run typecheck
 - Splash, onboarding, signup, and profile setup flow
 - Goal dashboard with progress, streaks, community shortcut, and AI coach shortcut
 - Swipe-inspired buddy discovery
+- Goal-filtered buddy discovery backed by the API
 - Daily check-in screen with task completion, note input, and media-type actions
 - Chat screen with text and voice-note message states
 - Community feed with groups, posts, upvotes, comments, and member activity
 - AI coach daily plan screen
-- Profile screen with XP, level, streak, buddies, badges, and interests
-- Local Node API for auth, profile, goals, check-ins, matching, chat, community posts, and rule-based coach responses
+- Profile screen with XP, level, streak, buddies, badges, interests, and API-backed weekly insights
+- Local Node API for auth, profile, goals, check-ins, accountability promises, matching, chat, community posts, weekly reports, and rule-based coach responses
 - Optional Ollama-backed AI coach using your local PC
 - Real Google OAuth code path through Expo AuthSession, once Google client IDs are configured
 - Firebase config bootstrap in `src/services/firebase.ts`
 - Firestore schema and product planning docs in `docs/`
+
+## API Notes
+
+The Expo app reads `expo.extra.apiBaseUrl` from `app.json`. If that is empty during local development, it uses the Expo dev host and talks to your PC on port `4000`, which is what phones and Android emulators need.
+
+Useful endpoints while testing:
+
+- `GET /health` returns API metadata, version, store type, and current server time.
+- `GET /buddies?seriousOnly=true&goal=Coding` returns filtered buddy suggestions.
+- `POST /commitments` creates an accountability promise.
+- `PATCH /commitments/:id/complete` closes a promise and awards accountability credit.
+- `DELETE /commitments/:id` removes a promise that no longer applies.
+- `GET /reports/weekly?userId=...` powers the weekly insight card on the profile screen.
 
 ## Google Sign-In
 
