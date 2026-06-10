@@ -5,7 +5,7 @@ import { Pill } from "../components/Pill";
 import { Screen } from "../components/Screen";
 import { StatCard } from "../components/StatCard";
 import { colors, radii, spacing } from "../theme";
-import { Commitment, Goal, LocalUser } from "../types/app";
+import { Commitment, Goal, LocalUser, WeeklyReport } from "../types/app";
 
 type ProfileScreenProps = {
   commitments?: Commitment[];
@@ -13,18 +13,24 @@ type ProfileScreenProps = {
   goals?: Goal[];
   matchesCount?: number;
   onLogout?: () => void;
+  weeklyReport?: WeeklyReport | null;
 };
 
-export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout }: ProfileScreenProps) {
+export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout, weeklyReport }: ProfileScreenProps) {
   const displayName = user?.username || "alex_productive";
   const level = user?.level ?? 12;
   const xp = user?.xp ?? 2460;
   const nextLevelXp = Math.max(300, level * 300);
   const xpProgress = Math.min(100, Math.round((xp / nextLevelXp) * 100));
-  const progress = goals.length ? Math.round((goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length) * 100) : 0;
-  const strongestGoal = goals.length ? [...goals].sort((a, b) => b.progress - a.progress)[0] : null;
-  const focusGoal = goals.length ? [...goals].sort((a, b) => a.progress - b.progress)[0] : null;
-  const completedPromises = commitments.filter((commitment) => commitment.status === "completed").length;
+  const localProgress = goals.length ? Math.round((goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length) * 100) : 0;
+  const localStrongestGoal = goals.length ? [...goals].sort((a, b) => b.progress - a.progress)[0]?.title : "Pick your first goal";
+  const localFocusGoal = goals.length ? [...goals].sort((a, b) => a.progress - b.progress)[0]?.title : "Create a routine";
+  const progress = weeklyReport?.overallProgress ?? localProgress;
+  const activeMatches = weeklyReport?.activeMatches ?? matchesCount;
+  const completedPromises = weeklyReport?.completedCommitments ?? commitments.filter((commitment) => commitment.status === "completed").length;
+  const openPromises = weeklyReport?.openCommitments ?? commitments.filter((commitment) => commitment.status === "open").length;
+  const strongestGoal = weeklyReport?.strongestGoal || localStrongestGoal;
+  const focusGoal = weeklyReport?.focusGoal || localFocusGoal;
 
   return (
     <Screen footerSpace>
@@ -43,7 +49,7 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
 
       <View style={styles.stats}>
         <StatCard label="Streak" value={`${user?.streakDays ?? 0} days`} />
-        <StatCard label="Buddies" value={`${matchesCount}`} />
+        <StatCard label="Buddies" value={`${activeMatches}`} />
         <StatCard label="Badges" value={`${user?.badges ?? 0}`} />
       </View>
 
@@ -71,15 +77,19 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
         </View>
         <View style={styles.insightRow}>
           <Feather name="trending-up" color={colors.emerald} size={18} />
-          <Text style={styles.insightText}>Strongest: {strongestGoal?.title ?? "Pick your first goal"}</Text>
+          <Text style={styles.insightText}>Strongest: {strongestGoal}</Text>
         </View>
         <View style={styles.insightRow}>
           <Feather name="target" color={colors.orange} size={18} />
-          <Text style={styles.insightText}>Next focus: {focusGoal?.title ?? "Create a routine"}</Text>
+          <Text style={styles.insightText}>Next focus: {focusGoal}</Text>
         </View>
         <View style={styles.insightRow}>
           <Feather name="check-circle" color={colors.purple} size={18} />
           <Text style={styles.insightText}>{completedPromises} promise{completedPromises === 1 ? "" : "s"} closed this week</Text>
+        </View>
+        <View style={styles.insightRow}>
+          <Feather name="clock" color={colors.blue} size={18} />
+          <Text style={styles.insightText}>{openPromises} open promise{openPromises === 1 ? "" : "s"} still need attention</Text>
         </View>
       </View>
 

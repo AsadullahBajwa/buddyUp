@@ -18,7 +18,7 @@ import { ProfileSetupScreen } from "./screens/ProfileSetupScreen";
 import { SplashScreen } from "./screens/SplashScreen";
 import { api } from "./services/api";
 import { buddies as seedBuddies, chatMessages as seedMessages, feedPosts as seedPosts, goals as seedGoals } from "./data/mockData";
-import { Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, LocalUser, TabKey } from "./types/app";
+import { Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, LocalUser, TabKey, WeeklyReport } from "./types/app";
 
 type AuthStep = "splash" | "onboarding" | "auth" | "profile" | "main";
 type RouteKey = TabKey | "community" | "coach";
@@ -31,6 +31,7 @@ export default function App() {
   const [goals, setGoals] = useState<Goal[]>(seedGoals);
   const [posts, setPosts] = useState<FeedPost[]>(seedPosts);
   const [commitments, setCommitments] = useState<Commitment[]>([]);
+  const [weeklyReport, setWeeklyReport] = useState<WeeklyReport | null>(null);
   const [matches, setMatches] = useState<BuddyMatch[]>([]);
   const [activeBuddy, setActiveBuddy] = useState<Buddy>(seedBuddies[0]);
   const [activeMatchId, setActiveMatchId] = useState("");
@@ -40,6 +41,15 @@ export default function App() {
 
   const enterAuth = useCallback(() => setAuthStep("auth"), []);
   const enterMain = useCallback(() => setAuthStep("main"), []);
+
+  async function refreshWeeklyReport(userId: string) {
+    try {
+      const data = await api.weeklyReport(userId);
+      setWeeklyReport(data.report);
+    } catch (error) {
+      setWeeklyReport(null);
+    }
+  }
 
   const restoreOrStart = useCallback(async () => {
     if (isRestoringSession) return;
@@ -56,6 +66,7 @@ export default function App() {
       setMatches(data.matches);
       setPosts(data.posts);
       setCommitments(data.commitments);
+      await refreshWeeklyReport(data.user.id);
       setRoute("home");
       setAuthStep("main");
     } catch (error) {
@@ -69,12 +80,13 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     api.dashboard(user.id)
-      .then((data) => {
+      .then(async (data) => {
         setUser(data.user);
         setGoals(data.goals);
         setMatches(data.matches);
         setPosts(data.posts);
         setCommitments(data.commitments);
+        await refreshWeeklyReport(data.user.id);
       })
       .catch(() => undefined);
   }, [user?.id]);
@@ -154,6 +166,7 @@ export default function App() {
       const data = await api.checkIn({ userId: user.id, ...input });
       setUser(data.user);
       setGoals(data.goals);
+      await refreshWeeklyReport(user.id);
       Alert.alert("Check-in saved", `Nice work. You earned XP and updated ${input.completedTaskIds.length} goal(s).`);
       setRoute("home");
     } catch (error) {
@@ -201,6 +214,7 @@ export default function App() {
     setMatches([]);
     setMessages(seedMessages);
     setCommitments([]);
+    setWeeklyReport(null);
     setRoute("home");
     setAuthStep("auth");
   }
@@ -216,6 +230,7 @@ export default function App() {
         title
       });
       setCommitments(data.commitments);
+      await refreshWeeklyReport(user.id);
     } catch (error) {
       Alert.alert("Commitment failed", error instanceof Error ? error.message : "Could not create commitment");
     }
@@ -226,6 +241,7 @@ export default function App() {
       const data = await api.completeCommitment(commitmentId);
       setUser(data.user);
       setCommitments(data.commitments);
+      if (data.user?.id) await refreshWeeklyReport(data.user.id);
     } catch (error) {
       Alert.alert("Commitment failed", error instanceof Error ? error.message : "Could not complete commitment");
     }
@@ -235,6 +251,7 @@ export default function App() {
     try {
       const data = await api.deleteCommitment(commitmentId);
       setCommitments(data.commitments);
+      if (user?.id) await refreshWeeklyReport(user.id);
     } catch (error) {
       Alert.alert("Commitment failed", error instanceof Error ? error.message : "Could not delete commitment");
     }
@@ -316,6 +333,7 @@ export default function App() {
           matchesCount={matches.length}
           onLogout={handleLogout}
           user={user}
+          weeklyReport={weeklyReport}
         />
       ) : null}
       <BottomTabs active={activeTab} onChange={setRoute} />
