@@ -1,6 +1,6 @@
 import Constants from "expo-constants";
 
-import { Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, GoalCategory, LocalUser } from "../types/app";
+import { Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, GoalCategory, LocalUser, WeeklyReport } from "../types/app";
 
 type ApiResponse<T> = T & {
   error?: string;
@@ -61,6 +61,9 @@ export const api = {
   },
   dashboard(userId: string) {
     return request<{ user: LocalUser; goals: Goal[]; matches: BuddyMatch[]; posts: FeedPost[]; commitments: Commitment[] }>(`/dashboard?userId=${userId}`);
+  },
+  weeklyReport(userId: string) {
+    return request<{ report: WeeklyReport }>(`/reports/weekly?userId=${userId}`);
   },
   buddies(seriousOnly: boolean, goal?: GoalCategory) {
     const params = new URLSearchParams({ seriousOnly: String(seriousOnly) });

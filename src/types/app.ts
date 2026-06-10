@@ -103,3 +103,16 @@ export type Commitment = {
   createdAt: string;
   completedAt?: string;
 };
+
+export type WeeklyReport = {
+  userId: string;
+  weekOf: string;
+  overallProgress: number;
+  completedCommitments: number;
+  openCommitments: number;
+  checkIns: number;
+  activeMatches: number;
+  strongestGoal: string;
+  focusGoal: string;
+  nextActions: string[];
+};
