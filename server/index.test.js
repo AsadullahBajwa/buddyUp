@@ -230,6 +230,27 @@ test("commitments can be created and completed for accountability credit", async
   });
 });
 
+test("commitments can be deleted when plans change", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    const created = await api(baseUrl, "/commitments", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: user.id,
+        title: "Read ten pages"
+      })
+    });
+
+    const deleted = await api(baseUrl, `/commitments/${created.body.commitment.id}`, {
+      method: "DELETE"
+    });
+
+    assert.equal(deleted.response.status, 200);
+    assert.equal(deleted.body.commitment.title, "Read ten pages");
+    assert.equal(deleted.body.commitments.length, 0);
+  });
+});
+
 test("weekly report summarizes accountability progress", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);

@@ -119,6 +119,11 @@ export const api = {
       method: "PATCH"
     });
   },
+  deleteCommitment(commitmentId: string) {
+    return request<{ commitment: Commitment; commitments: Commitment[] }>(`/commitments/${commitmentId}`, {
+      method: "DELETE"
+    });
+  },
   coachPlan(userId: string) {
     return request<{ plan: string[] }>(`/coach/plan?userId=${userId}`);
   },

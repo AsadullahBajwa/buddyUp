@@ -221,7 +221,7 @@ function publicUser(user) {
 function json(res, status, payload) {
   res.writeHead(status, {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Content-Type": "application/json"
   });
@@ -658,6 +658,17 @@ function createBuddyUpServer(options = {}) {
         commitment,
         commitments: db.commitments.filter((item) => item.userId === commitment.userId),
         user: publicUser(user)
+      });
+    }
+
+    if (req.method === "DELETE" && parts[0] === "commitments" && parts[1]) {
+      const commitment = db.commitments.find((item) => item.id === parts[1]);
+      if (!commitment) return json(res, 404, { error: "Commitment not found" });
+      db.commitments = db.commitments.filter((item) => item.id !== commitment.id);
+      await store.write(db);
+      return json(res, 200, {
+        commitment,
+        commitments: db.commitments.filter((item) => item.userId === commitment.userId)
       });
     }
 
