@@ -7,32 +7,43 @@ import { Screen } from "../components/Screen";
 import { buddies } from "../data/mockData";
 import { api } from "../services/api";
 import { colors, radii, spacing } from "../theme";
-import { Buddy } from "../types/app";
+import { Buddy, GoalCategory } from "../types/app";
 
 type DiscoverScreenProps = {
   onMatch?: (buddy: Buddy) => void;
 };
 
+const goalFilters: Array<"All" | GoalCategory> = ["All", "Fitness", "Study", "Coding", "Meditation", "Productivity"];
+
 export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
   const [index, setIndex] = useState(0);
   const [seriousOnly, setSeriousOnly] = useState(true);
+  const [goalFilter, setGoalFilter] = useState<"All" | GoalCategory>("All");
   const [remoteBuddies, setRemoteBuddies] = useState<Buddy[]>(buddies);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
-  const pool = useMemo(() => remoteBuddies.filter((buddy) => !seriousOnly || buddy.serious), [remoteBuddies, seriousOnly]);
+  const pool = useMemo(
+    () =>
+      remoteBuddies.filter((buddy) => {
+        const matchesSerious = !seriousOnly || buddy.serious;
+        const matchesGoal = goalFilter === "All" || buddy.goals.includes(goalFilter);
+        return matchesSerious && matchesGoal;
+      }),
+    [goalFilter, remoteBuddies, seriousOnly]
+  );
   const buddy = pool.length ? pool[index % pool.length] : null;
 
   useEffect(() => {
     setIsLoading(true);
     setLoadError("");
-    api.buddies(seriousOnly)
+    api.buddies(seriousOnly, goalFilter === "All" ? undefined : goalFilter)
       .then((data) => {
         setRemoteBuddies(data.buddies);
         setIndex(0);
       })
       .catch(() => setLoadError("Could not refresh buddies. Showing saved suggestions."))
       .finally(() => setIsLoading(false));
-  }, [seriousOnly]);
+  }, [goalFilter, seriousOnly]);
 
   function nextBuddy() {
     setIndex((current) => current + 1);
@@ -72,6 +83,26 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
           trackColor={{ false: colors.line, true: "#873E00" }}
           value={seriousOnly}
         />
+      </View>
+
+      <View style={styles.goalFilters}>
+        {goalFilters.map((goal) => {
+          const isActive = goalFilter === goal;
+          return (
+            <Pressable
+              key={goal}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isActive }}
+              onPress={() => {
+                setGoalFilter(goal);
+                setIndex(0);
+              }}
+              style={[styles.goalFilter, isActive ? styles.goalFilterActive : null]}
+            >
+              <Text style={[styles.goalFilterText, isActive ? styles.goalFilterTextActive : null]}>{goal}</Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       {loadError ? <Text style={styles.errorText}>{loadError}</Text> : null}
@@ -162,6 +193,33 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 15,
     fontWeight: "800"
+  },
+  goalFilters: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+    marginTop: -spacing.sm
+  },
+  goalFilter: {
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  goalFilterActive: {
+    backgroundColor: colors.orange,
+    borderColor: colors.orange
+  },
+  goalFilterText: {
+    color: colors.soft,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  goalFilterTextActive: {
+    color: colors.white
   },
   card: {
     borderRadius: radii.xl,
