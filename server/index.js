@@ -504,7 +504,11 @@ function createBuddyUpServer(options = {}) {
 
     if (req.method === "GET" && url.pathname === "/buddies") {
       const seriousOnly = url.searchParams.get("seriousOnly") === "true";
-      const buddies = seriousOnly ? db.buddies.filter((buddy) => buddy.serious) : db.buddies;
+      const goal = String(url.searchParams.get("goal") || "").trim().toLowerCase();
+      let buddies = seriousOnly ? db.buddies.filter((buddy) => buddy.serious) : db.buddies;
+      if (goal) {
+        buddies = buddies.filter((buddy) => buddy.goals.some((item) => String(item).toLowerCase() === goal));
+      }
       return json(res, 200, { buddies });
     }
 

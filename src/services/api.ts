@@ -62,8 +62,10 @@ export const api = {
   dashboard(userId: string) {
     return request<{ user: LocalUser; goals: Goal[]; matches: BuddyMatch[]; posts: FeedPost[]; commitments: Commitment[] }>(`/dashboard?userId=${userId}`);
   },
-  buddies(seriousOnly: boolean) {
-    return request<{ buddies: Buddy[] }>(`/buddies?seriousOnly=${seriousOnly}`);
+  buddies(seriousOnly: boolean, goal?: GoalCategory) {
+    const params = new URLSearchParams({ seriousOnly: String(seriousOnly) });
+    if (goal) params.set("goal", goal);
+    return request<{ buddies: Buddy[] }>(`/buddies?${params.toString()}`);
   },
   match(userId: string, buddyId: string) {
     return request<{ match: BuddyMatch; buddy: Buddy }>("/matches", {

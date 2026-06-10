@@ -274,6 +274,19 @@ test("buddy matching creates a match and starter message", async () => {
   });
 });
 
+test("buddy discovery can be filtered by goal", async () => {
+  await withApi(async (baseUrl) => {
+    const coding = await api(baseUrl, "/buddies?seriousOnly=true&goal=Coding");
+    assert.equal(coding.response.status, 200);
+    assert.equal(coding.body.buddies.length, 1);
+    assert.equal(coding.body.buddies[0].id, "leo");
+
+    const meditation = await api(baseUrl, "/buddies?seriousOnly=true&goal=Meditation");
+    assert.equal(meditation.response.status, 200);
+    assert.equal(meditation.body.buddies.length, 0);
+  });
+});
+
 test("chat sends a message and receives an accountability reply", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
