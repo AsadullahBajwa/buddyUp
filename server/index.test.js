@@ -56,6 +56,9 @@ test("health endpoint reports the API is alive", async () => {
     const { response, body } = await api(baseUrl, "/health");
     assert.equal(response.status, 200);
     assert.equal(body.ok, true);
+    assert.equal(body.service, "buddyup-api");
+    assert.equal(body.store, "json");
+    assert.equal(body.version, "0.1.0");
     assert.ok(body.time);
   });
 });

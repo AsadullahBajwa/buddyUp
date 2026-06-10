@@ -4,9 +4,11 @@ const http = require("http");
 const os = require("os");
 const path = require("path");
 const { URL } = require("url");
+const packageJson = require("../package.json");
 
 const PORT = Number(process.env.PORT || 4000);
 const defaultDataFile = process.env.BUDDYUP_DB_FILE || path.join(__dirname, "data", "buddyup-db.json");
+const APP_VERSION = process.env.BUDDYUP_VERSION || packageJson.version;
 const DATA_STORE = process.env.DATA_STORE || "json";
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5";
@@ -355,7 +357,13 @@ function createBuddyUpServer(options = {}) {
 
   try {
     if (req.method === "GET" && url.pathname === "/health") {
-      return json(res, 200, { ok: true, time: now() });
+      return json(res, 200, {
+        ok: true,
+        service: "buddyup-api",
+        store: DATA_STORE,
+        time: now(),
+        version: APP_VERSION
+      });
     }
 
     const db = await store.read();
