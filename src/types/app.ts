@@ -116,3 +116,11 @@ export type WeeklyReport = {
   focusGoal: string;
   nextActions: string[];
 };
+
+export type ApiHealth = {
+  ok: boolean;
+  service: string;
+  store: string;
+  time: string;
+  version: string;
+};

@@ -5,7 +5,7 @@ import { Pill } from "../components/Pill";
 import { Screen } from "../components/Screen";
 import { StatCard } from "../components/StatCard";
 import { colors, radii, spacing } from "../theme";
-import { Commitment, Goal, LocalUser, WeeklyReport } from "../types/app";
+import { ApiHealth, Commitment, Goal, LocalUser, WeeklyReport } from "../types/app";
 
 type ProfileScreenProps = {
   commitments?: Commitment[];
@@ -13,10 +13,11 @@ type ProfileScreenProps = {
   goals?: Goal[];
   matchesCount?: number;
   onLogout?: () => void;
+  apiHealth?: ApiHealth | null;
   weeklyReport?: WeeklyReport | null;
 };
 
-export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout, weeklyReport }: ProfileScreenProps) {
+export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout, apiHealth, weeklyReport }: ProfileScreenProps) {
   const displayName = user?.username || "alex_productive";
   const level = user?.level ?? 12;
   const xp = user?.xp ?? 2460;
@@ -90,6 +91,12 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
         <View style={styles.insightRow}>
           <Feather name="clock" color={colors.blue} size={18} />
           <Text style={styles.insightText}>{openPromises} open promise{openPromises === 1 ? "" : "s"} still need attention</Text>
+        </View>
+        <View style={styles.insightRow}>
+          <Feather name={apiHealth?.ok ? "wifi" : "wifi-off"} color={apiHealth?.ok ? colors.emerald : colors.red} size={18} />
+          <Text style={styles.insightText}>
+            API {apiHealth?.ok ? `online v${apiHealth.version} (${apiHealth.store})` : "status unavailable"}
+          </Text>
         </View>
       </View>
 
