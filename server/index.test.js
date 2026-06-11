@@ -327,6 +327,18 @@ test("chat sends a message and receives an accountability reply", async () => {
   });
 });
 
+test("chat rejects empty messages", async () => {
+  await withApi(async (baseUrl) => {
+    const empty = await api(baseUrl, "/messages", {
+      method: "POST",
+      body: JSON.stringify({ matchId: "match_test", text: "   " })
+    });
+
+    assert.equal(empty.response.status, 400);
+    assert.equal(empty.body.error, "Message text is required");
+  });
+});
+
 test("community posts can be created and returned first", async () => {
   await withApi(async (baseUrl) => {
     const created = await api(baseUrl, "/community/posts", {

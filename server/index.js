@@ -561,11 +561,13 @@ function createBuddyUpServer(options = {}) {
 
     if (req.method === "POST" && url.pathname === "/messages") {
       const body = await parseBody(req);
+      const text = String(body.text || "").trim();
+      if (!text) return json(res, 400, { error: "Message text is required" });
       const message = {
         id: id("msg"),
         matchId: body.matchId,
         sender: "me",
-        text: body.text,
+        text,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         createdAt: now()
       };
