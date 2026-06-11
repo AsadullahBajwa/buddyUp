@@ -21,6 +21,8 @@ export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost
   const [draft, setDraft] = useState("");
   const [commentingPostId, setCommentingPostId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState("");
+  const canPost = draft.trim().length > 0;
+  const canComment = commentDraft.trim().length > 0;
 
   function createPost() {
     const body = draft.trim();
@@ -60,7 +62,7 @@ export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost
 
       <View style={styles.composer}>
         <TextField placeholder="Post a progress update..." onChangeText={setDraft} style={styles.composerInput} value={draft} />
-        <Pressable style={styles.postButton} onPress={createPost}>
+        <Pressable disabled={!canPost} style={[styles.postButton, !canPost && styles.disabledButton]} onPress={createPost}>
           <Feather name="send" color={colors.white} size={17} />
         </Pressable>
       </View>
@@ -105,7 +107,7 @@ export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost
             {commentingPostId === post.id ? (
               <View style={styles.commentComposer}>
                 <TextField placeholder="Add encouragement..." onChangeText={setCommentDraft} style={styles.commentInput} value={commentDraft} />
-                <Pressable style={styles.commentButton} onPress={() => createComment(post.id)}>
+                <Pressable disabled={!canComment} style={[styles.commentButton, !canComment && styles.disabledButton]} onPress={() => createComment(post.id)}>
                   <Feather name="corner-down-left" color={colors.white} size={16} />
                 </Pressable>
               </View>
@@ -293,5 +295,8 @@ const styles = StyleSheet.create({
     height: 44,
     justifyContent: "center",
     width: 44
+  },
+  disabledButton: {
+    opacity: 0.45
   }
 });
