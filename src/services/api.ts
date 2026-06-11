@@ -7,6 +7,7 @@ type ApiResponse<T> = T & {
 };
 
 const extra = Constants.expoConfig?.extra as { apiBaseUrl?: string } | undefined;
+const DEFAULT_REQUEST_TIMEOUT_MS = 15000;
 
 function getDevHost() {
   const constants = Constants as unknown as {
@@ -20,18 +21,31 @@ function getDevHost() {
 export const API_BASE_URL = extra?.apiBaseUrl || (getDevHost() ? `http://${getDevHost()}:4000` : "http://localhost:4000");
 
 async function request<T>(path: string, options: RequestInit = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers ?? {})
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), DEFAULT_REQUEST_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers ?? {})
+      },
+      signal: controller.signal
+    });
+    const data = (await response.json()) as ApiResponse<T>;
+    if (!response.ok) {
+      throw new Error(data.error || "Request failed");
     }
-  });
-  const data = (await response.json()) as ApiResponse<T>;
-  if (!response.ok) {
-    throw new Error(data.error || "Request failed");
+    return data;
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Request timed out. Check that the BuddyUp API server is reachable.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
-  return data;
 }
 
 export const api = {
