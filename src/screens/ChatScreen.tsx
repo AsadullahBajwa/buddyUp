@@ -17,6 +17,7 @@ type ChatScreenProps = {
 export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSendMessage }: ChatScreenProps) {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const canSend = draft.trim().length > 0 && !sending;
 
   async function send() {
     const text = draft.trim();
@@ -66,7 +67,7 @@ export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSend
 
       <View style={styles.composer}>
         <TextField placeholder="Type a message..." onChangeText={setDraft} onSubmitEditing={send} style={styles.input} value={draft} />
-        <Pressable disabled={sending} style={[styles.send, sending && styles.sendDisabled]} onPress={send}>
+        <Pressable disabled={!canSend} style={[styles.send, !canSend && styles.sendDisabled]} onPress={send}>
           <Feather name={sending ? "clock" : "send"} color={colors.white} size={18} />
         </Pressable>
       </View>
