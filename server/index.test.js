@@ -352,6 +352,18 @@ test("community posts can be created and returned first", async () => {
   });
 });
 
+test("community posts reject empty bodies", async () => {
+  await withApi(async (baseUrl) => {
+    const empty = await api(baseUrl, "/community/posts", {
+      method: "POST",
+      body: JSON.stringify({ body: "   ", group: "Daily Motivation" })
+    });
+
+    assert.equal(empty.response.status, 400);
+    assert.equal(empty.body.error, "Post body is required");
+  });
+});
+
 test("community posts support upvotes and comments", async () => {
   await withApi(async (baseUrl) => {
     const created = await api(baseUrl, "/community/posts", {
@@ -372,6 +384,13 @@ test("community posts support upvotes and comments", async () => {
     assert.equal(commented.response.status, 200);
     assert.equal(commented.body.post.comments, 1);
     assert.equal(commented.body.post.commentsList[0].body, "Proud of this start.");
+
+    const emptyComment = await api(baseUrl, `/community/posts/${postId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ body: "   " })
+    });
+    assert.equal(emptyComment.response.status, 400);
+    assert.equal(emptyComment.body.error, "Comment body is required");
   });
 });
 

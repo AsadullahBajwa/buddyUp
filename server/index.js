@@ -680,11 +680,13 @@ function createBuddyUpServer(options = {}) {
 
     if (req.method === "POST" && url.pathname === "/community/posts") {
       const body = await parseBody(req);
+      const postBody = String(body.body || "").trim();
+      if (!postBody) return json(res, 400, { error: "Post body is required" });
       const post = {
         id: id("post"),
         group: body.group || "Daily Motivation",
         timeAgo: "now",
-        body: body.body || "",
+        body: postBody,
         upvotes: 0,
         comments: 0,
         commentsList: [],
