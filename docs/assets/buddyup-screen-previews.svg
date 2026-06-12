@@ -1,0 +1,74 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="720" fill="#080D18"/>
+  <rect x="44" y="44" width="1192" height="632" rx="32" fill="#111827" stroke="#273244" stroke-width="2"/>
+  <text x="92" y="106" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="34" font-weight="800">BuddyUp Mobile Experience</text>
+  <text x="92" y="142" fill="#94A3B8" font-family="Arial, sans-serif" font-size="18">Portfolio preview of the core accountability screens</text>
+
+  <g transform="translate(98 184)">
+    <rect width="190" height="380" rx="28" fill="#050814" stroke="#334155" stroke-width="3"/>
+    <circle cx="95" cy="24" r="5" fill="#334155"/>
+    <text x="24" y="62" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="18" font-weight="800">Goals</text>
+    <circle cx="95" cy="148" r="60" fill="#141B2D" stroke="#FF7A00" stroke-width="12"/>
+    <text x="68" y="154" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="24" font-weight="800">72%</text>
+    <rect x="24" y="236" width="142" height="20" rx="10" fill="#1F2937"/>
+    <rect x="24" y="236" width="96" height="20" rx="10" fill="#00D084"/>
+    <rect x="24" y="278" width="142" height="20" rx="10" fill="#1F2937"/>
+    <rect x="24" y="278" width="116" height="20" rx="10" fill="#7C3AED"/>
+    <rect x="24" y="320" width="142" height="20" rx="10" fill="#1F2937"/>
+    <rect x="24" y="320" width="74" height="20" rx="10" fill="#2F80ED"/>
+  </g>
+
+  <g transform="translate(326 184)">
+    <rect width="190" height="380" rx="28" fill="#050814" stroke="#334155" stroke-width="3"/>
+    <circle cx="95" cy="24" r="5" fill="#334155"/>
+    <text x="24" y="62" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="18" font-weight="800">Discover</text>
+    <rect x="24" y="88" width="142" height="214" rx="22" fill="#263247"/>
+    <circle cx="95" cy="150" r="42" fill="#FFB347"/>
+    <rect x="54" y="214" width="82" height="14" rx="7" fill="#F8FAFC"/>
+    <rect x="42" y="242" width="106" height="10" rx="5" fill="#CBD5E1"/>
+    <rect x="34" y="318" width="34" height="34" rx="17" fill="#1F2937" stroke="#475569"/>
+    <rect x="78" y="318" width="34" height="34" rx="17" fill="#1F2937" stroke="#475569"/>
+    <rect x="122" y="318" width="34" height="34" rx="17" fill="#EF4444"/>
+  </g>
+
+  <g transform="translate(554 184)">
+    <rect width="190" height="380" rx="28" fill="#050814" stroke="#334155" stroke-width="3"/>
+    <circle cx="95" cy="24" r="5" fill="#334155"/>
+    <text x="24" y="62" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="18" font-weight="800">Check-in</text>
+    <rect x="24" y="92" width="142" height="54" rx="14" fill="#141B2D" stroke="#273244"/>
+    <rect x="44" y="112" width="18" height="18" rx="9" fill="#00D084"/>
+    <rect x="74" y="116" width="70" height="10" rx="5" fill="#CBD5E1"/>
+    <rect x="24" y="166" width="142" height="54" rx="14" fill="#141B2D" stroke="#273244"/>
+    <rect x="44" y="186" width="18" height="18" rx="9" fill="#FF7A00"/>
+    <rect x="74" y="190" width="82" height="10" rx="5" fill="#CBD5E1"/>
+    <rect x="24" y="254" width="142" height="54" rx="18" fill="#FF7A00"/>
+    <text x="58" y="288" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="16" font-weight="800">Submit</text>
+  </g>
+
+  <g transform="translate(782 184)">
+    <rect width="190" height="380" rx="28" fill="#050814" stroke="#334155" stroke-width="3"/>
+    <circle cx="95" cy="24" r="5" fill="#334155"/>
+    <text x="24" y="62" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="18" font-weight="800">Coach</text>
+    <rect x="24" y="92" width="128" height="58" rx="18" fill="#141B2D"/>
+    <rect x="38" y="112" width="78" height="10" rx="5" fill="#CBD5E1"/>
+    <rect x="38" y="130" width="96" height="10" rx="5" fill="#CBD5E1"/>
+    <rect x="38" y="184" width="128" height="108" rx="18" fill="#263247" stroke="#334155"/>
+    <rect x="56" y="206" width="92" height="10" rx="5" fill="#F8FAFC"/>
+    <rect x="56" y="230" width="78" height="10" rx="5" fill="#94A3B8"/>
+    <rect x="56" y="254" width="64" height="10" rx="5" fill="#94A3B8"/>
+    <rect x="24" y="322" width="142" height="24" rx="12" fill="#7C3AED"/>
+  </g>
+
+  <g transform="translate(1010 184)">
+    <rect width="190" height="380" rx="28" fill="#050814" stroke="#334155" stroke-width="3"/>
+    <circle cx="95" cy="24" r="5" fill="#334155"/>
+    <text x="24" y="62" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="18" font-weight="800">Profile</text>
+    <circle cx="95" cy="112" r="42" fill="#2F80ED"/>
+    <rect x="52" y="174" width="86" height="12" rx="6" fill="#F8FAFC"/>
+    <rect x="36" y="206" width="118" height="8" rx="4" fill="#273244"/>
+    <rect x="36" y="206" width="84" height="8" rx="4" fill="#FF7A00"/>
+    <rect x="24" y="246" width="142" height="82" rx="18" fill="#141B2D" stroke="#273244"/>
+    <rect x="44" y="268" width="96" height="10" rx="5" fill="#CBD5E1"/>
+    <rect x="44" y="292" width="72" height="10" rx="5" fill="#00D084"/>
+  </g>
+</svg>

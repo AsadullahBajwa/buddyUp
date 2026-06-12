@@ -4,6 +4,12 @@ BuddyUp is a React Native + Expo mobile app for accountability partnerships. It 
 
 This repository is structured as a portfolio project: it includes a mobile app, a backend API, local JSON persistence, Firestore-ready deployment mode, CI/CD configuration, Google OAuth wiring, and Ollama-backed coaching fallback logic.
 
+## Screen Preview
+
+![BuddyUp generated mobile screen preview](docs/assets/buddyup-screen-previews.svg)
+
+This generated preview summarizes the main app screens: goals, discovery, check-in, AI coach, and profile insights. The live implementation is in `src/screens/`.
+
 ## Project Snapshot
 
 | Area | Implementation |
