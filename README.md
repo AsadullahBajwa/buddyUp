@@ -1,6 +1,33 @@
 # BuddyUp
 
-BuddyUp is a React Native + Expo mobile app for finding accountability partners, tracking goals, sharing daily check-ins, chatting, and joining motivation communities.
+BuddyUp is a React Native + Expo mobile app for accountability partnerships. It helps users create goals, match with serious partners, check in daily, chat with buddies, post progress in communities, and receive AI coaching through a Node API that can run locally or on Google Cloud Run.
+
+This repository is structured as a portfolio project: it includes a mobile app, a backend API, local JSON persistence, Firestore-ready deployment mode, CI/CD configuration, Google OAuth wiring, and Ollama-backed coaching fallback logic.
+
+## Project Snapshot
+
+| Area | Implementation |
+| --- | --- |
+| Mobile app | Expo SDK 54, React Native, TypeScript |
+| Backend | Node.js HTTP API with test coverage |
+| Local storage | JSON file store for quick PC and emulator testing |
+| Cloud storage | Firestore mode for Google Cloud Run deployment |
+| Auth | Email/password plus real Google OAuth token verification path |
+| AI coach | Ollama on local PC, rule-based fallback in hosted mode |
+| CI/CD | Cloud Build trigger, Artifact Registry, Cloud Run deployment |
+| Quality gates | Node test runner and TypeScript typecheck |
+
+## Core Features
+
+- Onboarding, signup, login, Google OAuth handoff, and profile setup
+- Goal dashboard with streaks, progress, promises, community shortcut, and AI coach shortcut
+- Goal-filtered buddy discovery backed by the API
+- Daily check-ins with task completion, notes, XP, streak, and reliability updates
+- Buddy matching, starter chat messages, and validated chat sends
+- Community feed with posts, comments, upvotes, and input validation
+- AI coach daily plan and message endpoint with Ollama support
+- Profile insights backed by the weekly report API
+- Backend health visibility inside the mobile profile screen
 
 ## Run Locally
 
@@ -27,23 +54,6 @@ Run tests:
 npm test
 npm run typecheck
 ```
-
-## Implemented In This Starter
-
-- Splash, onboarding, signup, and profile setup flow
-- Goal dashboard with progress, streaks, community shortcut, and AI coach shortcut
-- Swipe-inspired buddy discovery
-- Goal-filtered buddy discovery backed by the API
-- Daily check-in screen with task completion, note input, and media-type actions
-- Chat screen with text and voice-note message states
-- Community feed with groups, posts, upvotes, comments, and member activity
-- AI coach daily plan screen
-- Profile screen with XP, level, streak, buddies, badges, interests, and API-backed weekly insights
-- Local Node API for auth, profile, goals, check-ins, accountability promises, matching, chat, community posts, weekly reports, and rule-based coach responses
-- Optional Ollama-backed AI coach using your local PC
-- Real Google OAuth code path through Expo AuthSession, once Google client IDs are configured
-- Firebase config bootstrap in `src/services/firebase.ts`
-- Firestore schema and product planning docs in `docs/`
 
 ## API Notes
 
