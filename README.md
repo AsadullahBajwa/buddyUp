@@ -29,6 +29,57 @@ This repository is structured as a portfolio project: it includes a mobile app, 
 - Profile insights backed by the weekly report API
 - Backend health visibility inside the mobile profile screen
 
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph Client["Mobile Client"]
+    Expo["Expo React Native App"]
+    Screens["Auth, Goals, Discover, Check-in, Chat, Community, Profile"]
+    LocalState["AsyncStorage Session"]
+  end
+
+  subgraph API["BuddyUp API"]
+    Server["Node HTTP Server"]
+    Routes["Auth, Users, Buddies, Matches, Messages, Check-ins, Commitments, Posts, Coach"]
+    StoreAdapter["Store Adapter"]
+    Coach["Coach Service"]
+  end
+
+  subgraph LocalDev["Local Development"]
+    JsonStore["JSON DB File"]
+    Ollama["Ollama qwen2.5"]
+  end
+
+  subgraph Cloud["Google Cloud"]
+    CloudRun["Cloud Run Service"]
+    Firestore["Firestore Native Mode"]
+    ArtifactRegistry["Artifact Registry"]
+    CloudBuild["Cloud Build Trigger"]
+  end
+
+  subgraph External["External Providers"]
+    GoogleOAuth["Google OAuth Userinfo"]
+  end
+
+  Expo --> Screens
+  Screens --> LocalState
+  Screens -->|HTTP JSON| Server
+  Server --> Routes
+  Routes --> StoreAdapter
+  StoreAdapter --> JsonStore
+  StoreAdapter --> Firestore
+  Routes --> Coach
+  Coach --> Ollama
+  Routes --> GoogleOAuth
+  CloudBuild --> ArtifactRegistry
+  ArtifactRegistry --> CloudRun
+  CloudRun --> Server
+  CloudRun --> Firestore
+```
+
+The same API surface is used for local testing and Cloud Run. The `DATA_STORE` environment variable selects JSON or Firestore, while `OLLAMA_ENABLED` controls whether hosted deployments use local AI calls or the rule-based fallback.
+
 ## Run Locally
 
 ```bash
