@@ -231,6 +231,32 @@ sequenceDiagram
 
 These flows show the main portfolio story: users make commitments, prove progress, receive feedback, and use buddies or AI coaching to keep momentum.
 
+## Deployment Pipeline
+
+```mermaid
+flowchart LR
+  Dev["Developer Push to main"] --> GitHub["GitHub Repository"]
+  GitHub --> Trigger["Cloud Build Trigger"]
+  Trigger --> Test["Install, Build Image"]
+  Test --> Registry["Artifact Registry: buddyup-api"]
+  Registry --> Deploy["Cloud Run Deploy"]
+  Deploy --> Service["buddyup-api HTTPS URL"]
+  Service --> Firestore["Firestore Database"]
+  Service --> Logs["Cloud Logging"]
+  Expo["Expo Mobile App"] -->|apiBaseUrl| Service
+```
+
+The deployed backend currently uses Cloud Run for the API container and Firestore for persistent hosted data. Local emulator and iPhone testing can still point to the PC server by leaving `expo.extra.apiBaseUrl` empty or setting it to the LAN address printed by `npm run server`.
+
+## Runtime Modes
+
+| Mode | API URL | Data store | AI coach |
+| --- | --- | --- | --- |
+| Local web | `http://localhost:4000` | JSON file | Ollama if running |
+| Android emulator | `http://<expo-host>:4000` or `http://10.0.2.2:4000` | JSON file | Ollama if reachable |
+| iPhone on LAN | `http://<pc-lan-ip>:4000` | JSON file | Ollama on PC |
+| Cloud Run | Cloud Run HTTPS URL | Firestore | Rule fallback unless hosted AI is configured |
+
 ## Run Locally
 
 ```bash
