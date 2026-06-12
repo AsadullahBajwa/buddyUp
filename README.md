@@ -80,6 +80,106 @@ flowchart LR
 
 The same API surface is used for local testing and Cloud Run. The `DATA_STORE` environment variable selects JSON or Firestore, while `OLLAMA_ENABLED` controls whether hosted deployments use local AI calls or the rule-based fallback.
 
+## Database Model
+
+```mermaid
+erDiagram
+  USER ||--o{ GOAL : owns
+  USER ||--o{ COMMITMENT : creates
+  USER ||--o{ CHECK_IN : submits
+  USER ||--o{ BUDDY_MATCH : starts
+  BUDDY ||--o{ BUDDY_MATCH : joins
+  BUDDY_MATCH ||--o{ MESSAGE : contains
+  USER ||--o{ COMMUNITY_POST : writes
+  COMMUNITY_POST ||--o{ COMMUNITY_COMMENT : has
+
+  USER {
+    string id
+    string name
+    string email
+    string username
+    number xp
+    number level
+    number reliabilityScore
+    number streakDays
+    string authProvider
+  }
+
+  GOAL {
+    string id
+    string userId
+    string title
+    string category
+    number progress
+    number streak
+    string target
+  }
+
+  COMMITMENT {
+    string id
+    string userId
+    string goalId
+    string title
+    string status
+    string dueAt
+    string completedAt
+  }
+
+  CHECK_IN {
+    string id
+    string userId
+    string type
+    string note
+    string[] completedTaskIds
+    string createdAt
+  }
+
+  BUDDY {
+    string id
+    string name
+    string[] goals
+    string activityLevel
+    string communicationStyle
+    number reliabilityScore
+    boolean serious
+  }
+
+  BUDDY_MATCH {
+    string id
+    string userId
+    string buddyId
+    string status
+    string createdAt
+  }
+
+  MESSAGE {
+    string id
+    string matchId
+    string sender
+    string text
+    string time
+  }
+
+  COMMUNITY_POST {
+    string id
+    string group
+    string body
+    number upvotes
+    number comments
+    string accent
+  }
+
+  COMMUNITY_COMMENT {
+    string id
+    string postId
+    string author
+    string body
+    string createdAt
+  }
+```
+
+The local JSON database uses these collections directly. Firestore mode stores the same top-level collections so local and hosted behavior stay aligned during testing.
+
 ## Run Locally
 
 ```bash
