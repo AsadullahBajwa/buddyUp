@@ -180,6 +180,57 @@ erDiagram
 
 The local JSON database uses these collections directly. Firestore mode stores the same top-level collections so local and hosted behavior stay aligned during testing.
 
+## Product Flow
+
+```mermaid
+flowchart TD
+  Start["Open App"] --> Splash["Splash"]
+  Splash --> Onboarding["Onboarding"]
+  Onboarding --> Auth["Email Login, Signup, or Google OAuth"]
+  Auth --> ProfileSetup["Profile Setup"]
+  ProfileSetup --> Goals["Goal Dashboard"]
+  Goals --> Promise["Create Accountability Promise"]
+  Goals --> Discover["Filter and Match Buddy"]
+  Goals --> CheckIn["Daily Check-in"]
+  Goals --> Coach["AI Coach"]
+  Goals --> Community["Community Feed"]
+  Discover --> Chat["Buddy Chat"]
+  CheckIn --> Weekly["Weekly Report API"]
+  Promise --> Weekly
+  Chat --> Weekly
+  Weekly --> Profile["Profile Insights"]
+  Community --> Motivation["Social Motivation"]
+  Coach --> Plan["Daily Action Plan"]
+```
+
+## Accountability Loop
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant App as Expo App
+  participant API as BuddyUp API
+  participant Store as JSON or Firestore
+  participant Coach as Coach Service
+
+  User->>App: Create promise or submit check-in
+  App->>API: POST /commitments or POST /checkins
+  API->>Store: Persist action and update XP
+  Store-->>API: Updated user, goals, commitments
+  API-->>App: Fresh progress state
+  App->>API: GET /reports/weekly
+  API->>Store: Read goals, matches, check-ins, promises
+  Store-->>API: Weekly activity data
+  API-->>App: Progress, focus goal, next actions
+  User->>App: Ask AI coach
+  App->>API: POST /coach/message
+  API->>Coach: Generate response or fallback plan
+  Coach-->>API: Daily coaching reply
+  API-->>App: Motivation and plan
+```
+
+These flows show the main portfolio story: users make commitments, prove progress, receive feedback, and use buddies or AI coaching to keep momentum.
+
 ## Run Locally
 
 ```bash
