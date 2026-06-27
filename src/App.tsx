@@ -18,7 +18,7 @@ import { ProfileSetupScreen } from "./screens/ProfileSetupScreen";
 import { SplashScreen } from "./screens/SplashScreen";
 import { api } from "./services/api";
 import { buddies as seedBuddies, chatMessages as seedMessages, feedPosts as seedPosts, goals as seedGoals } from "./data/mockData";
-import { ApiHealth, Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, LocalUser, TabKey, WeeklyReport } from "./types/app";
+import { ApiHealth, ApiStats, Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, LocalUser, TabKey, WeeklyReport } from "./types/app";
 
 type AuthStep = "splash" | "onboarding" | "auth" | "profile" | "main";
 type RouteKey = TabKey | "community" | "coach";
@@ -33,6 +33,7 @@ export default function App() {
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [weeklyReport, setWeeklyReport] = useState<WeeklyReport | null>(null);
   const [apiHealth, setApiHealth] = useState<ApiHealth | null>(null);
+  const [apiStats, setApiStats] = useState<ApiStats | null>(null);
   const [matches, setMatches] = useState<BuddyMatch[]>([]);
   const [activeBuddy, setActiveBuddy] = useState<Buddy>(seedBuddies[0]);
   const [activeMatchId, setActiveMatchId] = useState("");
@@ -49,6 +50,15 @@ export default function App() {
       setApiHealth(data);
     } catch (error) {
       setApiHealth(null);
+    }
+  }, []);
+
+  const refreshApiStats = useCallback(async () => {
+    try {
+      const data = await api.stats();
+      setApiStats(data.stats);
+    } catch (error) {
+      setApiStats(null);
     }
   }, []);
 
@@ -77,6 +87,7 @@ export default function App() {
       setPosts(data.posts);
       setCommitments(data.commitments);
       await refreshApiHealth();
+      await refreshApiStats();
       await refreshWeeklyReport(data.user.id);
       setRoute("home");
       setAuthStep("main");
@@ -86,7 +97,7 @@ export default function App() {
     } finally {
       setIsRestoringSession(false);
     }
-  }, [isRestoringSession, refreshApiHealth]);
+  }, [isRestoringSession, refreshApiHealth, refreshApiStats]);
 
   useEffect(() => {
     if (!user) return;
@@ -98,10 +109,11 @@ export default function App() {
         setPosts(data.posts);
         setCommitments(data.commitments);
         await refreshApiHealth();
+        await refreshApiStats();
         await refreshWeeklyReport(data.user.id);
       })
       .catch(() => undefined);
-  }, [refreshApiHealth, user?.id]);
+  }, [refreshApiHealth, refreshApiStats, user?.id]);
 
   async function handleSignup(input: { name: string; email: string; password: string }) {
     try {
@@ -228,6 +240,7 @@ export default function App() {
     setCommitments([]);
     setWeeklyReport(null);
     setApiHealth(null);
+    setApiStats(null);
     setRoute("home");
     setAuthStep("auth");
   }
@@ -346,6 +359,7 @@ export default function App() {
           matchesCount={matches.length}
           onLogout={handleLogout}
           apiHealth={apiHealth}
+          apiStats={apiStats}
           user={user}
           weeklyReport={weeklyReport}
         />

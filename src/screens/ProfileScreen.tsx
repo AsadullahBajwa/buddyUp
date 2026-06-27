@@ -5,7 +5,7 @@ import { Pill } from "../components/Pill";
 import { Screen } from "../components/Screen";
 import { StatCard } from "../components/StatCard";
 import { colors, radii, spacing } from "../theme";
-import { ApiHealth, Commitment, Goal, LocalUser, WeeklyReport } from "../types/app";
+import { ApiHealth, ApiStats, Commitment, Goal, LocalUser, WeeklyReport } from "../types/app";
 
 type ProfileScreenProps = {
   commitments?: Commitment[];
@@ -14,10 +14,11 @@ type ProfileScreenProps = {
   matchesCount?: number;
   onLogout?: () => void;
   apiHealth?: ApiHealth | null;
+  apiStats?: ApiStats | null;
   weeklyReport?: WeeklyReport | null;
 };
 
-export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout, apiHealth, weeklyReport }: ProfileScreenProps) {
+export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout, apiHealth, apiStats, weeklyReport }: ProfileScreenProps) {
   const displayName = user?.username || "alex_productive";
   const level = user?.level ?? 12;
   const xp = user?.xp ?? 2460;
@@ -96,6 +97,12 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
           <Feather name={apiHealth?.ok ? "wifi" : "wifi-off"} color={apiHealth?.ok ? colors.emerald : colors.red} size={18} />
           <Text style={styles.insightText}>
             API {apiHealth?.ok ? `online v${apiHealth.version} (${apiHealth.store})` : "status unavailable"}
+          </Text>
+        </View>
+        <View style={styles.insightRow}>
+          <Feather name="database" color={colors.orange} size={18} />
+          <Text style={styles.insightText}>
+            {apiStats ? `${apiStats.users} users, ${apiStats.matches} matches, ${apiStats.community.posts} posts tracked` : "Backend stats loading"}
           </Text>
         </View>
       </View>
