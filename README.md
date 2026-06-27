@@ -289,6 +289,8 @@ npm test
 npm run typecheck
 ```
 
+For a guided phone/emulator pass, use [docs/mobile-testing-checklist.md](docs/mobile-testing-checklist.md).
+
 ## API Notes
 
 The Expo app reads `expo.extra.apiBaseUrl` from `app.json`. If that is empty during local development, it uses the Expo dev host and talks to your PC on port `4000`, which is what phones and Android emulators need.
