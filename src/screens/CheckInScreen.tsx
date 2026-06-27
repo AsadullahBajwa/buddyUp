@@ -30,6 +30,7 @@ export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: Ch
   const [doneIds, setDoneIds] = useState<string[]>(taskSeed.filter((task) => task.done).map((task) => task.id));
   const [note, setNote] = useState("");
   const [type, setType] = useState("text");
+  const canSubmit = doneIds.length > 0 || note.trim().length > 0;
 
   function toggleTask(id: string) {
     setDoneIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
@@ -71,7 +72,7 @@ export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: Ch
 
       <TextField placeholder="Add a note..." multiline onChangeText={setNote} style={styles.note} value={note} />
       <GradientButton
-        disabled={isSubmitting}
+        disabled={isSubmitting || !canSubmit}
         label={isSubmitting ? "Saving..." : "Check In"}
         onPress={() => {
           Keyboard.dismiss();
