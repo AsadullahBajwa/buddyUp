@@ -76,6 +76,25 @@ test("signup creates a public user and starter goals", async () => {
   });
 });
 
+test("stats endpoint summarizes backend activity", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    await api(baseUrl, "/commitments", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, title: "Finish a portfolio task" })
+    });
+
+    const { response, body } = await api(baseUrl, "/stats");
+
+    assert.equal(response.status, 200);
+    assert.equal(body.stats.users, 1);
+    assert.equal(body.stats.goals, 4);
+    assert.equal(body.stats.buddies, 3);
+    assert.equal(body.stats.commitments.open, 1);
+    assert.equal(body.stats.community.posts, 2);
+  });
+});
+
 test("email login returns an existing public user", async () => {
   await withApi(async (baseUrl) => {
     const email = `login-${Date.now()}@buddyup.test`;

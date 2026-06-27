@@ -319,6 +319,29 @@ function buildWeeklyReport(user, goals, commitments, checkIns, matches) {
   };
 }
 
+function buildStats(db) {
+  const openCommitments = db.commitments.filter((commitment) => commitment.status === "open").length;
+  const completedCommitments = db.commitments.filter((commitment) => commitment.status === "completed").length;
+  return {
+    users: db.users.length,
+    goals: db.goals.length,
+    buddies: db.buddies.length,
+    matches: db.matches.length,
+    messages: db.messages.length,
+    checkIns: db.checkIns.length,
+    commitments: {
+      open: openCommitments,
+      completed: completedCommitments,
+      total: db.commitments.length
+    },
+    community: {
+      posts: db.posts.length,
+      comments: db.posts.reduce((sum, post) => sum + Number(post.comments || 0), 0),
+      upvotes: db.posts.reduce((sum, post) => sum + Number(post.upvotes || 0), 0)
+    }
+  };
+}
+
 async function askOllama(text, goals) {
   if (!OLLAMA_ENABLED) throw new Error("Ollama is disabled");
 
@@ -367,6 +390,10 @@ function createBuddyUpServer(options = {}) {
     }
 
     const db = await store.read();
+
+    if (req.method === "GET" && url.pathname === "/stats") {
+      return json(res, 200, { stats: buildStats(db) });
+    }
 
     if (req.method === "POST" && url.pathname === "/auth/signup") {
       const body = await parseBody(req);
