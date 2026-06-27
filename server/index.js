@@ -16,6 +16,7 @@ const OLLAMA_ENABLED = process.env.OLLAMA_ENABLED !== "false";
 const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES || 64 * 1024);
 
 const colors = ["#FF7A00", "#00D084", "#7C3AED", "#2F80ED", "#FFB347"];
+const allowedCheckInTypes = new Set(["photo", "text", "voice", "habit"]);
 
 function id(prefix) {
   return `${prefix}_${crypto.randomUUID().slice(0, 8)}`;
@@ -619,38 +620,39 @@ function createBuddyUpServer(options = {}) {
 
     if (req.method === "POST" && url.pathname === "/checkins") {
       const body = await parseBody(req);
+      const user = db.users.find((item) => item.id === body.userId);
+      if (!user) return json(res, 404, { error: "User not found" });
+      const type = String(body.type || "text").toLowerCase();
+      if (!allowedCheckInTypes.has(type)) return json(res, 400, { error: "Check-in type is invalid" });
       const completedTaskIds = Array.isArray(body.completedTaskIds) ? body.completedTaskIds : [];
       const checkIn = {
         id: id("checkin"),
-        userId: body.userId,
+        userId: user.id,
         note: body.note || "",
-        type: body.type || "text",
+        type,
         completedTaskIds,
         createdAt: now()
       };
       db.checkIns.push(checkIn);
       db.goals.forEach((goal) => {
-        if (goal.userId === body.userId && completedTaskIds.includes(goal.id)) {
+        if (goal.userId === user.id && completedTaskIds.includes(goal.id)) {
           goal.progress = Math.min(1, Number(goal.progress || 0) + 0.14);
           goal.streak = Number(goal.streak || 0) + 1;
           goal.target = `${Math.min(7, goal.streak)}/7 days`;
           goal.updatedAt = now();
         }
       });
-      const user = db.users.find((item) => item.id === body.userId);
-      if (user) {
-        user.xp += 25 + completedTaskIds.length * 10;
-        user.level = Math.max(1, Math.floor(user.xp / 300) + 1);
-        user.badges = Math.floor(user.xp / 250);
-        user.streakDays += 1;
-        user.reliabilityScore = Math.min(99, user.reliabilityScore + 1);
-        user.updatedAt = now();
-      }
+      user.xp += 25 + completedTaskIds.length * 10;
+      user.level = Math.max(1, Math.floor(user.xp / 300) + 1);
+      user.badges = Math.floor(user.xp / 250);
+      user.streakDays += 1;
+      user.reliabilityScore = Math.min(99, user.reliabilityScore + 1);
+      user.updatedAt = now();
       await store.write(db);
       return json(res, 200, {
         checkIn,
         user: publicUser(user),
-        goals: db.goals.filter((goal) => goal.userId === body.userId)
+        goals: db.goals.filter((goal) => goal.userId === user.id)
       });
     }
 

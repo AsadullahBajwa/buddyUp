@@ -248,6 +248,25 @@ test("check-in updates goal progress, streak, XP, level inputs", async () => {
   });
 });
 
+test("check-in validates user and media type", async () => {
+  await withApi(async (baseUrl) => {
+    const missingUser = await api(baseUrl, "/checkins", {
+      method: "POST",
+      body: JSON.stringify({ userId: "missing", completedTaskIds: [], note: "Done", type: "text" })
+    });
+    assert.equal(missingUser.response.status, 404);
+    assert.equal(missingUser.body.error, "User not found");
+
+    const user = await createUser(baseUrl);
+    const invalidType = await api(baseUrl, "/checkins", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, completedTaskIds: [], note: "Done", type: "video" })
+    });
+    assert.equal(invalidType.response.status, 400);
+    assert.equal(invalidType.body.error, "Check-in type is invalid");
+  });
+});
+
 test("commitments can be created and completed for accountability credit", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
