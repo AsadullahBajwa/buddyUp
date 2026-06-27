@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 
@@ -19,6 +19,8 @@ export function ProfileSetupScreen({ onComplete }: ProfileSetupScreenProps) {
   const [age, setAge] = useState("22");
   const [timezone, setTimezone] = useState("(GMT+1) Berlin");
   const [selectedGoals, setSelectedGoals] = useState<GoalCategory[]>(["Study", "Fitness", "Productivity"]);
+  const parsedAge = Number(age || 0);
+  const canContinue = Boolean(username.trim()) && Number.isFinite(parsedAge) && parsedAge >= 13 && parsedAge <= 100 && selectedGoals.length > 0;
 
   function toggleGoal(goal: GoalCategory) {
     setSelectedGoals((current) =>
@@ -27,7 +29,19 @@ export function ProfileSetupScreen({ onComplete }: ProfileSetupScreenProps) {
   }
 
   function submit() {
-    onComplete({ username, age: Number(age || 18), timezone, goals: selectedGoals });
+    if (!username.trim()) {
+      Alert.alert("Profile setup", "Please choose a username.");
+      return;
+    }
+    if (!Number.isFinite(parsedAge) || parsedAge < 13 || parsedAge > 100) {
+      Alert.alert("Profile setup", "Age must be between 13 and 100.");
+      return;
+    }
+    if (!selectedGoals.length) {
+      Alert.alert("Profile setup", "Select at least one goal.");
+      return;
+    }
+    onComplete({ username: username.trim(), age: parsedAge, timezone: timezone.trim(), goals: selectedGoals });
   }
 
   return (
@@ -63,7 +77,7 @@ export function ProfileSetupScreen({ onComplete }: ProfileSetupScreenProps) {
         ))}
       </View>
 
-      <GradientButton label="Continue" onPress={submit} style={styles.button} />
+      <GradientButton disabled={!canContinue} label="Continue" onPress={submit} style={styles.button} />
     </Screen>
   );
 }
