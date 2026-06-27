@@ -189,6 +189,33 @@ test("profile setup persists username and selected goals", async () => {
   });
 });
 
+test("profile setup validates required profile fields", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+
+    const missingUsername = await api(baseUrl, `/users/${user.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ username: "   ", age: 22, timezone: "GMT+1", goals: ["Study"] })
+    });
+    assert.equal(missingUsername.response.status, 400);
+    assert.equal(missingUsername.body.error, "Username is required");
+
+    const invalidAge = await api(baseUrl, `/users/${user.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ username: "alex", age: 8, timezone: "GMT+1", goals: ["Study"] })
+    });
+    assert.equal(invalidAge.response.status, 400);
+    assert.equal(invalidAge.body.error, "Age must be between 13 and 100");
+
+    const noGoals = await api(baseUrl, `/users/${user.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ username: "alex", age: 22, timezone: "GMT+1", goals: [] })
+    });
+    assert.equal(noGoals.response.status, 400);
+    assert.equal(noGoals.body.error, "Select at least one goal");
+  });
+});
+
 test("check-in updates goal progress, streak, XP, level inputs", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);

@@ -498,13 +498,19 @@ function createBuddyUpServer(options = {}) {
       const body = await parseBody(req);
       const user = db.users.find((item) => item.id === parts[1]);
       if (!user) return json(res, 404, { error: "User not found" });
+      const username = String(body.username ?? user.username ?? "").trim();
+      const age = Number(body.age || user.age);
+      const goals = Array.isArray(body.goals) ? body.goals.filter(Boolean) : user.goals;
+      if (!username) return json(res, 400, { error: "Username is required" });
+      if (!Number.isFinite(age) || age < 13 || age > 100) return json(res, 400, { error: "Age must be between 13 and 100" });
+      if (!Array.isArray(goals) || goals.length === 0) return json(res, 400, { error: "Select at least one goal" });
       const hadChosenGoals = Array.isArray(user.goals) && user.goals.length > 0;
       Object.assign(user, {
-        username: body.username ?? user.username,
-        age: Number(body.age || user.age),
+        username,
+        age,
         timezone: body.timezone ?? user.timezone,
-        goals: Array.isArray(body.goals) ? body.goals : user.goals,
-        interests: Array.isArray(body.goals) ? body.goals : user.interests,
+        goals,
+        interests: goals,
         updatedAt: now()
       });
       const existingGoals = db.goals.filter((goal) => goal.userId === user.id);
