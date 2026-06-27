@@ -296,11 +296,14 @@ The Expo app reads `expo.extra.apiBaseUrl` from `app.json`. If that is empty dur
 Useful endpoints while testing:
 
 - `GET /health` returns API metadata, version, store type, and current server time.
+- `GET /stats` returns aggregate users, goals, buddies, matches, check-ins, promises, and community activity.
 - `GET /buddies?seriousOnly=true&goal=Coding` returns filtered buddy suggestions.
 - `POST /commitments` creates an accountability promise.
 - `PATCH /commitments/:id/complete` closes a promise and awards accountability credit.
 - `DELETE /commitments/:id` removes a promise that no longer applies.
 - `GET /reports/weekly?userId=...` powers the weekly insight card on the profile screen.
+
+The API rejects invalid profile setup fields, unknown check-in users, unsupported check-in media types, empty chat messages, and blank community posts or comments. Those checks are mirrored in the mobile UI where practical.
 
 ## Google Sign-In
 
