@@ -124,3 +124,22 @@ export type ApiHealth = {
   time: string;
   version: string;
 };
+
+export type ApiStats = {
+  users: number;
+  goals: number;
+  buddies: number;
+  matches: number;
+  messages: number;
+  checkIns: number;
+  commitments: {
+    open: number;
+    completed: number;
+    total: number;
+  };
+  community: {
+    posts: number;
+    comments: number;
+    upvotes: number;
+  };
+};

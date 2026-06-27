@@ -1,6 +1,6 @@
 import Constants from "expo-constants";
 
-import { ApiHealth, Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, GoalCategory, LocalUser, WeeklyReport } from "../types/app";
+import { ApiHealth, ApiStats, Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, GoalCategory, LocalUser, WeeklyReport } from "../types/app";
 
 type ApiResponse<T> = T & {
   error?: string;
@@ -51,6 +51,9 @@ async function request<T>(path: string, options: RequestInit = {}) {
 export const api = {
   health() {
     return request<ApiHealth>("/health");
+  },
+  stats() {
+    return request<{ stats: ApiStats }>("/stats");
   },
   signup(input: { name: string; email: string; password: string }) {
     return request<{ user: LocalUser }>("/auth/signup", {
