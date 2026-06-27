@@ -21,6 +21,7 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
   const [reply, setReply] = useState("Remember why you started. Small steps every day lead to big changes.");
   const [draft, setDraft] = useState("");
   const [isThinking, setIsThinking] = useState(false);
+  const [provider, setProvider] = useState<"rules" | "ollama" | null>(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -43,8 +44,10 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
       const data = await api.coachMessage(userId, prompt);
       setReply(data.reply);
       setPlan(data.plan);
+      setProvider(data.provider);
     } catch (error) {
       setReply("I could not reach the coach service right now. Pick one goal, work for 10 focused minutes, then check in.");
+      setProvider(null);
     } finally {
       setIsThinking(false);
     }
@@ -75,6 +78,7 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
 
         <View style={styles.coachCard}>
           <View style={styles.coachCopy}>
+            {provider ? <Text style={styles.provider}>Coach source: {provider}</Text> : null}
             <Text style={styles.coachText}>{reply}</Text>
           </View>
           <Image
@@ -168,6 +172,13 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 15,
     lineHeight: 22
+  },
+  provider: {
+    color: colors.orange,
+    fontSize: 11,
+    fontWeight: "900",
+    marginBottom: spacing.sm,
+    textTransform: "uppercase"
   },
   coachImage: {
     borderRadius: radii.lg,

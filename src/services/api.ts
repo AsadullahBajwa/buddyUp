@@ -151,7 +151,7 @@ export const api = {
     return request<{ plan: string[] }>(`/coach/plan?userId=${userId}`);
   },
   coachMessage(userId: string, text: string) {
-    return request<{ reply: string; plan: string[] }>("/coach/message", {
+    return request<{ reply: string; plan: string[]; provider: "rules" | "ollama" }>("/coach/message", {
       method: "POST",
       body: JSON.stringify({ userId, text })
     });
