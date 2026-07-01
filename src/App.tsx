@@ -173,6 +173,8 @@ export default function App() {
       });
       const messageData = await api.messages(data.match.id);
       setMessages(messageData.messages);
+      await refreshApiStats();
+      await refreshWeeklyReport(user.id);
       setRoute("chat");
     } catch (error) {
       Alert.alert("Match failed", error instanceof Error ? error.message : "Could not match with this buddy");
@@ -190,6 +192,7 @@ export default function App() {
       const data = await api.checkIn({ userId: user.id, ...input });
       setUser(data.user);
       setGoals(data.goals);
+      await refreshApiStats();
       await refreshWeeklyReport(user.id);
       Alert.alert("Check-in saved", `Nice work. You earned XP and updated ${input.completedTaskIds.length} goal(s).`);
       setRoute("home");
@@ -220,16 +223,19 @@ export default function App() {
   async function handleCreatePost(body: string) {
     const data = await api.createPost(body);
     setPosts(data.posts);
+    await refreshApiStats();
   }
 
   async function handleUpvotePost(postId: string) {
     const data = await api.upvotePost(postId);
     setPosts(data.posts);
+    await refreshApiStats();
   }
 
   async function handleCommentPost(postId: string, body: string) {
     const data = await api.commentPost(postId, body);
     setPosts(data.posts);
+    await refreshApiStats();
   }
 
   async function handleLogout() {
@@ -256,6 +262,7 @@ export default function App() {
         title
       });
       setCommitments(data.commitments);
+      await refreshApiStats();
       await refreshWeeklyReport(user.id);
     } catch (error) {
       Alert.alert("Commitment failed", error instanceof Error ? error.message : "Could not create commitment");
@@ -267,6 +274,7 @@ export default function App() {
       const data = await api.completeCommitment(commitmentId);
       setUser(data.user);
       setCommitments(data.commitments);
+      await refreshApiStats();
       if (data.user?.id) await refreshWeeklyReport(data.user.id);
     } catch (error) {
       Alert.alert("Commitment failed", error instanceof Error ? error.message : "Could not complete commitment");
@@ -277,6 +285,7 @@ export default function App() {
     try {
       const data = await api.deleteCommitment(commitmentId);
       setCommitments(data.commitments);
+      await refreshApiStats();
       if (user?.id) await refreshWeeklyReport(user.id);
     } catch (error) {
       Alert.alert("Commitment failed", error instanceof Error ? error.message : "Could not delete commitment");
