@@ -235,12 +235,13 @@ test("check-in updates goal progress, streak, XP, level inputs", async () => {
       body: JSON.stringify({
         userId: user.id,
         completedTaskIds: [firstGoalId],
-        note: "Done.",
+        note: "  Done.  ",
         type: "text"
       })
     });
 
     assert.equal(response.status, 200);
+    assert.equal(body.checkIn.note, "Done.");
     assert.equal(body.user.xp, 35);
     assert.equal(body.user.streakDays, 1);
     assert.equal(body.goals[0].streak, 1);

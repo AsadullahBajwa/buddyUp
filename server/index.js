@@ -629,7 +629,7 @@ function createBuddyUpServer(options = {}) {
       const checkIn = {
         id: id("checkin"),
         userId: user.id,
-        note: body.note || "",
+        note: String(body.note || "").trim(),
         type,
         completedTaskIds,
         createdAt: now()
