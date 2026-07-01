@@ -334,8 +334,10 @@ test("weekly report summarizes accountability progress", async () => {
     const report = await api(baseUrl, `/reports/weekly?userId=${user.id}`);
 
     assert.equal(report.response.status, 200);
+    assert.match(report.body.report.weekOf, /^\d{4}-\d{2}-\d{2}$/);
     assert.equal(report.body.report.completedCommitments, 1);
     assert.equal(report.body.report.checkIns, 1);
+    assert.equal(report.body.report.activeMatches, 0);
     assert.ok(report.body.report.overallProgress > 0);
     assert.ok(report.body.report.nextActions.length >= 3);
   });

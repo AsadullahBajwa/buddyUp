@@ -305,11 +305,12 @@ function buildWeeklyReport(user, goals, commitments, checkIns, matches) {
 
   return {
     userId: user.id,
+    weekOf: now().slice(0, 10),
     overallProgress,
     reliabilityScore: user.reliabilityScore,
     checkIns: checkIns.length,
     completedCommitments,
-    activeBuddies: matches.filter((match) => match.status === "matched").length,
+    activeMatches: matches.filter((match) => match.status === "matched").length,
     strongestGoal: strongestGoal?.title || "",
     focusGoal: focusGoal?.title || "",
     nextActions: [
