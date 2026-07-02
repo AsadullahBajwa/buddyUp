@@ -337,6 +337,8 @@ test("weekly report summarizes accountability progress", async () => {
     assert.equal(report.response.status, 200);
     assert.match(report.body.report.weekOf, /^\d{4}-\d{2}-\d{2}$/);
     assert.equal(report.body.report.completedCommitments, 1);
+    assert.equal(report.body.report.openCommitments, 0);
+    assert.equal(report.body.report.commitmentCompletionRate, 100);
     assert.equal(report.body.report.checkIns, 1);
     assert.equal(report.body.report.activeMatches, 0);
     assert.ok(report.body.report.overallProgress > 0);

@@ -302,6 +302,9 @@ function buildWeeklyReport(user, goals, commitments, checkIns, matches) {
   const strongestGoal = goals.length ? [...goals].sort((a, b) => Number(b.progress || 0) - Number(a.progress || 0))[0] : null;
   const focusGoal = goals.length ? [...goals].sort((a, b) => Number(a.progress || 0) - Number(b.progress || 0))[0] : null;
   const completedCommitments = commitments.filter((commitment) => commitment.status === "completed").length;
+  const openCommitments = commitments.filter((commitment) => commitment.status === "open").length;
+  const totalCommitments = commitments.length;
+  const commitmentCompletionRate = totalCommitments ? Math.round((completedCommitments / totalCommitments) * 100) : 0;
 
   return {
     userId: user.id,
@@ -310,6 +313,8 @@ function buildWeeklyReport(user, goals, commitments, checkIns, matches) {
     reliabilityScore: user.reliabilityScore,
     checkIns: checkIns.length,
     completedCommitments,
+    openCommitments,
+    commitmentCompletionRate,
     activeMatches: matches.filter((match) => match.status === "matched").length,
     strongestGoal: strongestGoal?.title || "",
     focusGoal: focusGoal?.title || "",

@@ -110,6 +110,7 @@ export type WeeklyReport = {
   overallProgress: number;
   completedCommitments: number;
   openCommitments: number;
+  commitmentCompletionRate: number;
   checkIns: number;
   activeMatches: number;
   strongestGoal: string;
