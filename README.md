@@ -27,12 +27,13 @@ This generated preview summarizes the main app screens: goals, discovery, check-
 
 - Onboarding, signup, login, Google OAuth handoff, and profile setup
 - Goal dashboard with streaks, progress, promises, community shortcut, and AI coach shortcut
-- Goal-filtered buddy discovery backed by the API
+- Goal dashboard promise summary with open, closed, and total counts
+- Goal-filtered buddy discovery backed by the API with visible result counts and filter reset
 - Daily check-ins with task completion, notes, XP, streak, and reliability updates
 - Buddy matching, starter chat messages, and validated chat sends
 - Community feed with posts, comments, upvotes, and input validation
 - AI coach daily plan and message endpoint with Ollama support
-- Profile insights backed by the weekly report API
+- Profile insights backed by the weekly report API, including report week and promise completion rate
 - Backend health visibility inside the mobile profile screen
 
 ## Architecture
@@ -306,6 +307,12 @@ Useful endpoints while testing:
 - `GET /reports/weekly?userId=...` powers the weekly insight card on the profile screen.
 
 The API rejects invalid profile setup fields, unknown check-in users, unsupported check-in media types, empty chat messages, and blank community posts or comments. Those checks are mirrored in the mobile UI where practical.
+
+Recent mobile polish:
+
+- The Goals screen summarizes promise progress before the user opens Profile.
+- The Discover screen shows how many buddies match the current filter and offers a reset action for empty results.
+- The weekly report now returns open promises and promise completion rate for stronger profile insights.
 
 ## Google Sign-In
 
