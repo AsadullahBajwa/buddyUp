@@ -31,6 +31,7 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
   const activeMatches = weeklyReport?.activeMatches ?? matchesCount;
   const completedPromises = weeklyReport?.completedCommitments ?? commitments.filter((commitment) => commitment.status === "completed").length;
   const openPromises = weeklyReport?.openCommitments ?? commitments.filter((commitment) => commitment.status === "open").length;
+  const promiseCompletionRate = weeklyReport?.commitmentCompletionRate ?? 0;
   const strongestGoal = weeklyReport?.strongestGoal || localStrongestGoal;
   const focusGoal = weeklyReport?.focusGoal || localFocusGoal;
 
@@ -73,10 +74,16 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
             <Text style={styles.insightLabel}>Goal progress</Text>
           </View>
           <View style={styles.insight}>
-            <Text style={styles.insightValue}>{user?.reliabilityScore ?? 70}%</Text>
-            <Text style={styles.insightLabel}>Reliability</Text>
+            <Text style={styles.insightValue}>{promiseCompletionRate}%</Text>
+            <Text style={styles.insightLabel}>Promises closed</Text>
           </View>
         </View>
+        {weeklyReport?.weekOf ? (
+          <View style={styles.insightRow}>
+            <Feather name="calendar" color={colors.yellow} size={18} />
+            <Text style={styles.insightText}>Report week: {weeklyReport.weekOf}</Text>
+          </View>
+        ) : null}
         <View style={styles.insightRow}>
           <Feather name="trending-up" color={colors.emerald} size={18} />
           <Text style={styles.insightText}>Strongest: {strongestGoal}</Text>
