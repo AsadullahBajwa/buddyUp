@@ -33,6 +33,8 @@ export function GoalsScreen({
     ? Math.round((currentGoals.reduce((sum, goal) => sum + goal.progress, 0) / currentGoals.length) * 100)
     : 0;
   const openCommitments = commitments.filter((commitment) => commitment.status === "open").slice(0, 3);
+  const openCommitmentCount = commitments.filter((commitment) => commitment.status === "open").length;
+  const completedCommitmentCount = commitments.filter((commitment) => commitment.status === "completed").length;
 
   function addPromise() {
     const title = promiseDraft.trim();
@@ -73,7 +75,7 @@ export function GoalsScreen({
         <View style={styles.cardHeader}>
           <View>
             <Text style={styles.cardTitle}>Accountability promises</Text>
-            <Text style={styles.cardSubtitle}>{openCommitments.length} active today</Text>
+            <Text style={styles.cardSubtitle}>{openCommitmentCount} active today</Text>
           </View>
           <Pressable style={styles.addPromise} onPress={addPromise}>
             <Feather name="plus" color={colors.white} size={18} />
@@ -87,6 +89,20 @@ export function GoalsScreen({
             style={styles.promiseInput}
             value={promiseDraft}
           />
+        </View>
+        <View style={styles.promiseStats}>
+          <View style={styles.promiseStat}>
+            <Text style={styles.promiseStatValue}>{openCommitmentCount}</Text>
+            <Text style={styles.promiseStatLabel}>Open</Text>
+          </View>
+          <View style={styles.promiseStat}>
+            <Text style={styles.promiseStatValue}>{completedCommitmentCount}</Text>
+            <Text style={styles.promiseStatLabel}>Closed</Text>
+          </View>
+          <View style={styles.promiseStat}>
+            <Text style={styles.promiseStatValue}>{commitments.length}</Text>
+            <Text style={styles.promiseStatLabel}>Total</Text>
+          </View>
         </View>
         {openCommitments.length ? (
           <View style={styles.promiseList}>
@@ -252,6 +268,31 @@ const styles = StyleSheet.create({
   },
   promiseInput: {
     minHeight: 46
+  },
+  promiseStats: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.md
+  },
+  promiseStat: {
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.line,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flex: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  promiseStatValue: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: "900"
+  },
+  promiseStatLabel: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "800",
+    marginTop: spacing.xs
   },
   promiseList: {
     gap: spacing.md,
