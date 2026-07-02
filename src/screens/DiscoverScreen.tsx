@@ -63,6 +63,12 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
     );
   }
 
+  function resetFilters() {
+    setGoalFilter("All");
+    setSeriousOnly(false);
+    setIndex(0);
+  }
+
   return (
     <Screen footerSpace>
       <View style={styles.header}>
@@ -105,6 +111,10 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
         })}
       </View>
 
+      <Text style={styles.resultCount}>
+        {pool.length} match{pool.length === 1 ? "" : "es"} for {goalFilter === "All" ? "all goals" : goalFilter}
+      </Text>
+
       {loadError ? <Text style={styles.errorText}>{loadError}</Text> : null}
 
       {isLoading ? (
@@ -136,7 +146,10 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
         <View style={styles.emptyCard}>
           <Feather name="users" color={colors.orange} size={32} />
           <Text style={styles.emptyTitle}>No buddies found</Text>
-          <Text style={styles.emptyText}>Try turning off the serious partner filter.</Text>
+          <Text style={styles.emptyText}>Try a broader goal or include less serious partners.</Text>
+          <Pressable style={styles.resetButton} onPress={resetFilters}>
+            <Text style={styles.resetButtonText}>Reset filters</Text>
+          </Pressable>
         </View>
       )}
 
@@ -251,6 +264,12 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     marginBottom: spacing.md
   },
+  resultCount: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800",
+    marginBottom: spacing.md
+  },
   emptyCard: {
     alignItems: "center",
     backgroundColor: colors.surface,
@@ -272,6 +291,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     textAlign: "center"
+  },
+  resetButton: {
+    backgroundColor: colors.orange,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm
+  },
+  resetButtonText: {
+    color: colors.white,
+    fontSize: 13,
+    fontWeight: "900"
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
