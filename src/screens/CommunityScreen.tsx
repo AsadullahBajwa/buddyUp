@@ -1,6 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Screen } from "../components/Screen";
 import { TextField } from "../components/TextField";
@@ -8,7 +8,9 @@ import { feedPosts } from "../data/mockData";
 import { colors, radii, spacing } from "../theme";
 import { FeedPost } from "../types/app";
 
-const tabs = ["For You", "Following", "Groups"];
+type CommunityTab = "For You" | "Following" | "Groups";
+
+const tabs: CommunityTab[] = ["For You", "Following", "Groups"];
 
 type CommunityScreenProps = {
   posts?: FeedPost[];
@@ -18,11 +20,21 @@ type CommunityScreenProps = {
 };
 
 export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost, onUpvotePost }: CommunityScreenProps) {
+  const [activeTab, setActiveTab] = useState<CommunityTab>("For You");
   const [draft, setDraft] = useState("");
   const [commentingPostId, setCommentingPostId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState("");
   const canPost = draft.trim().length > 0;
   const canComment = commentDraft.trim().length > 0;
+  const visiblePosts = useMemo(() => {
+    if (activeTab === "Following") {
+      return posts.filter((post) => post.upvotes >= 10 || post.comments > 0);
+    }
+    if (activeTab === "Groups") {
+      return posts.filter((post, index, list) => list.findIndex((item) => item.group === post.group) === index);
+    }
+    return posts;
+  }, [activeTab, posts]);
 
   function createPost() {
     const body = draft.trim();
@@ -53,9 +65,15 @@ export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost
       </View>
 
       <View style={styles.tabs}>
-        {tabs.map((tab, index) => (
-          <Pressable key={tab} style={[styles.tab, index === 0 && styles.activeTab]}>
-            <Text style={[styles.tabText, index === 0 && styles.activeTabText]}>{tab}</Text>
+        {tabs.map((tab) => (
+          <Pressable
+            key={tab}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === tab }}
+            onPress={() => setActiveTab(tab)}
+            style={[styles.tab, activeTab === tab && styles.activeTab]}
+          >
+            <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
           </Pressable>
         ))}
       </View>
@@ -68,7 +86,7 @@ export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost
       </View>
 
       <View style={styles.postList}>
-        {posts.map((post) => (
+        {visiblePosts.length ? visiblePosts.map((post) => (
           <View key={post.id} style={styles.post}>
             <View style={styles.postHeader}>
               <View style={[styles.groupIcon, { backgroundColor: post.accent }]}>
@@ -113,7 +131,13 @@ export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost
               </View>
             ) : null}
           </View>
-        ))}
+        )) : (
+          <View style={styles.emptyState}>
+            <Feather name="message-square" color={colors.orange} size={26} />
+            <Text style={styles.emptyTitle}>No posts here yet</Text>
+            <Text style={styles.emptyText}>Share a progress update to start the conversation.</Text>
+          </View>
+        )}
       </View>
     </Screen>
   );
@@ -192,6 +216,26 @@ const styles = StyleSheet.create({
   postList: {
     gap: spacing.lg,
     marginTop: spacing.xl
+  },
+  emptyState: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.xl
+  },
+  emptyTitle: {
+    color: colors.text,
+    fontSize: 17,
+    fontWeight: "900"
+  },
+  emptyText: {
+    color: colors.soft,
+    fontSize: 13,
+    lineHeight: 19,
+    textAlign: "center"
   },
   post: {
     backgroundColor: colors.surface,
