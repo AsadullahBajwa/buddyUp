@@ -14,13 +14,15 @@ type ChatScreenProps = {
   onSendMessage?: (text: string) => Promise<void> | void;
 };
 
+const quickPrompts = ["Starting now", "Proof after session", "Check on me tonight"];
+
 export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSendMessage }: ChatScreenProps) {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const canSend = draft.trim().length > 0 && !sending;
 
-  async function send() {
-    const text = draft.trim();
+  async function sendText(input: string) {
+    const text = input.trim();
     if (!text || sending) return;
     setDraft("");
     Keyboard.dismiss();
@@ -30,6 +32,10 @@ export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSend
     } finally {
       setSending(false);
     }
+  }
+
+  async function send() {
+    await sendText(draft);
   }
 
   return (
@@ -63,6 +69,14 @@ export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSend
             </View>
           );
         })}
+      </View>
+
+      <View style={styles.quickPrompts}>
+        {quickPrompts.map((prompt) => (
+          <Pressable disabled={sending} key={prompt} style={[styles.quickPrompt, sending && styles.sendDisabled]} onPress={() => sendText(prompt)}>
+            <Text style={styles.quickPromptText}>{prompt}</Text>
+          </Pressable>
+        ))}
       </View>
 
       <View style={styles.composer}>
@@ -166,6 +180,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: spacing.md,
     paddingBottom: 76
+  },
+  quickPrompts: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    paddingBottom: spacing.md
+  },
+  quickPrompt: {
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  quickPromptText: {
+    color: colors.soft,
+    fontSize: 12,
+    fontWeight: "900"
   },
   input: {
     flex: 1
