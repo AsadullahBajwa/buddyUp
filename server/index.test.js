@@ -409,6 +409,36 @@ test("weekly report summarizes accountability progress", async () => {
   });
 });
 
+test("weekly report includes open promises and active match totals", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    const dashboard = await api(baseUrl, `/dashboard?userId=${user.id}`);
+    const goalId = dashboard.body.goals[0].id;
+    const firstCommitment = await api(baseUrl, "/commitments", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, goalId, title: "Finish a deep-work block" })
+    });
+    await api(baseUrl, "/commitments", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, goalId, title: "Walk for 20 minutes" })
+    });
+    await api(baseUrl, `/commitments/${firstCommitment.body.commitment.id}/complete`, { method: "PATCH" });
+    await api(baseUrl, "/matches", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, buddyId: "leo" })
+    });
+
+    const report = await api(baseUrl, `/reports/weekly?userId=${user.id}`);
+
+    assert.equal(report.response.status, 200);
+    assert.equal(report.body.report.completedCommitments, 1);
+    assert.equal(report.body.report.openCommitments, 1);
+    assert.equal(report.body.report.commitmentCompletionRate, 50);
+    assert.equal(report.body.report.activeMatches, 1);
+    assert.ok(report.body.report.nextActions.includes("Close one open promise today."));
+  });
+});
+
 test("buddy matching creates a match and starter message", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
