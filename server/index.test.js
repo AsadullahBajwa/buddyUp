@@ -117,6 +117,47 @@ test("stats endpoint summarizes backend activity", async () => {
   });
 });
 
+test("stats endpoint includes matches, messages, check-ins, and community totals", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    const dashboard = await api(baseUrl, `/dashboard?userId=${user.id}`);
+    const goalId = dashboard.body.goals[0].id;
+
+    const matched = await api(baseUrl, "/matches", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, buddyId: "sara" })
+    });
+    await api(baseUrl, "/messages", {
+      method: "POST",
+      body: JSON.stringify({ matchId: matched.body.match.id, text: "Starting now." })
+    });
+    await api(baseUrl, "/checkins", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, completedTaskIds: [goalId], note: "Proof sent", type: "text" })
+    });
+    const post = await api(baseUrl, "/community/posts", {
+      method: "POST",
+      body: JSON.stringify({ body: "One more focused day done.", group: "Daily Motivation" })
+    });
+    const postId = post.body.posts[0].id;
+    await api(baseUrl, `/community/posts/${postId}/upvote`, { method: "POST" });
+    await api(baseUrl, `/community/posts/${postId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ body: "Solid progress." })
+    });
+
+    const stats = await api(baseUrl, "/stats");
+
+    assert.equal(stats.response.status, 200);
+    assert.equal(stats.body.stats.matches, 1);
+    assert.equal(stats.body.stats.messages, 3);
+    assert.equal(stats.body.stats.checkIns, 1);
+    assert.equal(stats.body.stats.community.posts, 3);
+    assert.equal(stats.body.stats.community.comments, 16);
+    assert.equal(stats.body.stats.community.upvotes, 60);
+  });
+});
+
 test("email login returns an existing public user", async () => {
   await withApi(async (baseUrl) => {
     const email = `login-${Date.now()}@buddyup.test`;
