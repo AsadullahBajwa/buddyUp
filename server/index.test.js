@@ -76,6 +76,28 @@ test("signup creates a public user and starter goals", async () => {
   });
 });
 
+test("signup reuses an existing account without duplicating goals", async () => {
+  await withApi(async (baseUrl) => {
+    const email = "repeat@buddyup.test";
+    const first = await api(baseUrl, "/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ name: "Repeat User", email, password: "buddyup123" })
+    });
+    const second = await api(baseUrl, "/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ name: "Repeat Again", email, password: "buddyup123" })
+    });
+
+    assert.equal(first.response.status, 200);
+    assert.equal(second.response.status, 200);
+    assert.equal(second.body.user.id, first.body.user.id);
+    assert.equal(second.body.user.passwordHash, undefined);
+
+    const dashboard = await api(baseUrl, `/dashboard?userId=${first.body.user.id}`);
+    assert.equal(dashboard.body.goals.length, 4);
+  });
+});
+
 test("stats endpoint summarizes backend activity", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
