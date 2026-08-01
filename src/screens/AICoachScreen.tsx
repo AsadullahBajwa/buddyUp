@@ -15,6 +15,8 @@ type AICoachScreenProps = {
   onBack?: () => void;
 };
 
+const coachPrompts = ["Build a plan", "I feel stuck", "Motivate me"];
+
 export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps) {
   const fallbackPlan = useMemo(() => goals.slice(0, 4).map((goal) => `Make one concrete step for ${goal.title}`), [goals]);
   const [plan, setPlan] = useState<string[]>(fallbackPlan.length ? fallbackPlan : ["Study 45 minutes", "Workout", "Read 10 pages", "Check in"]);
@@ -71,6 +73,19 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
           <Text style={styles.planTitle}>Today&apos;s plan</Text>
           {plan.map((item) => (
             <Text key={item} style={styles.planItem}>{item}</Text>
+          ))}
+        </View>
+
+        <View style={styles.promptRow}>
+          {coachPrompts.map((prompt) => (
+            <Pressable
+              disabled={isThinking}
+              key={prompt}
+              style={[styles.promptChip, isThinking && styles.promptChipDisabled]}
+              onPress={() => askCoach(prompt)}
+            >
+              <Text style={styles.promptText}>{prompt}</Text>
+            </Pressable>
           ))}
         </View>
 
@@ -154,6 +169,27 @@ const styles = StyleSheet.create({
     color: colors.soft,
     fontSize: 14,
     lineHeight: 24
+  },
+  promptRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm
+  },
+  promptChip: {
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  promptChipDisabled: {
+    opacity: 0.55
+  },
+  promptText: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: "800"
   },
   coachCard: {
     alignItems: "center",
