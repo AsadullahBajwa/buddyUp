@@ -31,6 +31,8 @@ export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: Ch
   const [note, setNote] = useState("");
   const [type, setType] = useState("text");
   const canSubmit = doneIds.length > 0 || note.trim().length > 0;
+  const completedCount = doneIds.length;
+  const totalCount = taskSeed.length;
 
   function toggleTask(id: string) {
     setDoneIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
@@ -52,7 +54,10 @@ export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: Ch
 
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>Today&apos;s goals</Text>
+          <View>
+            <Text style={styles.cardTitle}>Today&apos;s goals</Text>
+            <Text style={styles.cardSubtitle}>{completedCount} of {totalCount} selected</Text>
+          </View>
           <MaterialCommunityIcons name="dots-horizontal" color={colors.muted} size={22} />
         </View>
         <View style={styles.tasks}>
@@ -141,6 +146,12 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 17,
     fontWeight: "900"
+  },
+  cardSubtitle: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800",
+    marginTop: spacing.xs
   },
   tasks: {
     gap: spacing.md,
