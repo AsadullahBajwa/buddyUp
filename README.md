@@ -29,10 +29,10 @@ This generated preview summarizes the main app screens: goals, discovery, check-
 - Goal dashboard with streaks, progress, promises, community shortcut, and AI coach shortcut
 - Goal dashboard promise summary with open, closed, and total counts
 - Goal-filtered buddy discovery backed by the API with visible result counts and filter reset
-- Daily check-ins with task completion, notes, XP, streak, and reliability updates
-- Buddy matching, starter chat messages, validated chat sends, and quick accountability prompts
+- Daily check-ins with task completion counts, notes, XP, streak, and reliability updates
+- Buddy matching with user validation, starter chat messages, validated chat sends, and quick accountability prompts
 - Community feed with interactive For You, Following, and Groups tabs plus posts, comments, upvotes, and input validation
-- AI coach daily plan and message endpoint with Ollama support
+- AI coach daily plan, quick prompts, validated message endpoint, and Ollama support
 - Profile insights backed by the weekly report API, including report week and promise completion rate
 - Backend health visibility inside the mobile profile screen
 
@@ -305,15 +305,19 @@ Useful endpoints while testing:
 - `PATCH /commitments/:id/complete` closes a promise and awards accountability credit.
 - `DELETE /commitments/:id` removes a promise that no longer applies.
 - `GET /reports/weekly?userId=...` powers the weekly insight card on the profile screen.
+- `POST /matches` validates both the app user and buddy before creating a match.
+- `POST /coach/message` rejects blank prompts before attempting Ollama or fallback coaching.
 
-The API rejects invalid profile setup fields, unknown check-in users, unsupported check-in media types, empty chat messages, and blank community posts or comments. Those checks are mirrored in the mobile UI where practical.
+The API rejects invalid profile setup fields, unknown match users, unknown check-in users, unsupported check-in media types, empty coach prompts, empty chat messages, and blank community posts or comments. Those checks are mirrored in the mobile UI where practical.
 
 Recent mobile polish:
 
 - The Goals screen summarizes promise progress before the user opens Profile.
 - The Discover screen shows how many buddies match the current filter and offers a reset action for empty results.
+- The Check-in screen shows how many goals are selected before submitting progress.
 - The Community screen tabs now filter feed views for faster mobile scanning.
 - The Chat screen includes quick accountability prompts for common buddy updates.
+- The AI Coach screen includes quick prompt chips for plans, stuck moments, and motivation.
 - The weekly report now returns open promises and promise completion rate for stronger profile insights.
 
 ## Google Sign-In
