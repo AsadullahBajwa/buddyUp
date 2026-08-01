@@ -774,11 +774,13 @@ function createBuddyUpServer(options = {}) {
 
     if (req.method === "POST" && url.pathname === "/coach/message") {
       const body = await parseBody(req);
+      const text = String(body.text || "").trim();
+      if (!text) return json(res, 400, { error: "Coach message text is required" });
       const goals = db.goals.filter((goal) => goal.userId === body.userId);
-      let reply = coachReply(body.text, goals);
+      let reply = coachReply(text, goals);
       let provider = "rules";
       try {
-        const ollamaReply = await askOllama(body.text, goals);
+        const ollamaReply = await askOllama(text, goals);
         if (ollamaReply) {
           reply = ollamaReply;
           provider = "ollama";

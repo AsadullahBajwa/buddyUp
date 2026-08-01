@@ -573,3 +573,17 @@ test("coach returns a plan and a reply without requiring Ollama", async () => {
     assert.match(message.body.provider, /rules|ollama/);
   });
 });
+
+test("coach rejects empty prompts", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+
+    const message = await api(baseUrl, "/coach/message", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, text: "   " })
+    });
+
+    assert.equal(message.response.status, 400);
+    assert.equal(message.body.error, "Coach message text is required");
+  });
+});
