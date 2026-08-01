@@ -458,6 +458,18 @@ test("buddy matching creates a match and starter message", async () => {
   });
 });
 
+test("buddy matching validates the requesting user", async () => {
+  await withApi(async (baseUrl) => {
+    const matched = await api(baseUrl, "/matches", {
+      method: "POST",
+      body: JSON.stringify({ userId: "missing-user", buddyId: "sara" })
+    });
+
+    assert.equal(matched.response.status, 404);
+    assert.equal(matched.body.error, "User not found");
+  });
+});
+
 test("buddy discovery can be filtered by goal", async () => {
   await withApi(async (baseUrl) => {
     const coding = await api(baseUrl, "/buddies?seriousOnly=true&goal=Coding");

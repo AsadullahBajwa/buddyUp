@@ -569,6 +569,8 @@ function createBuddyUpServer(options = {}) {
 
     if (req.method === "POST" && url.pathname === "/matches") {
       const body = await parseBody(req);
+      const user = db.users.find((item) => item.id === body.userId);
+      if (!user) return json(res, 404, { error: "User not found" });
       const buddy = db.buddies.find((item) => item.id === body.buddyId);
       if (!buddy) return json(res, 404, { error: "Buddy not found" });
       let match = db.matches.find((item) => item.userId === body.userId && item.buddyId === body.buddyId);
