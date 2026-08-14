@@ -294,6 +294,10 @@ function coachPlan(goals) {
 
 function coachReply(text, goals) {
   const lower = String(text).toLowerCase();
+  const mentionedGoal = goals.find((goal) => lower.includes(String(goal.title || "").toLowerCase()));
+  if (mentionedGoal) {
+    return `For ${mentionedGoal.title}, choose one visible 20-minute step, set proof before you start, and send your buddy the result.`;
+  }
   const lowest = [...goals].sort((a, b) => a.progress - b.progress)[0];
   if (lower.includes("plan")) return `Today's plan: ${coachPlan(goals).join(", ")}. Keep it small enough to finish.`;
   if (lower.includes("stuck")) return "Shrink the task. Do the first two minutes, send your buddy proof, then decide whether to continue.";

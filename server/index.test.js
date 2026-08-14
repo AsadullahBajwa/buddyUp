@@ -610,6 +610,23 @@ test("coach returns a plan and a reply without requiring Ollama", async () => {
   });
 });
 
+test("coach can focus replies on a named goal", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    const dashboard = await api(baseUrl, `/dashboard?userId=${user.id}`);
+    const goal = dashboard.body.goals[0];
+
+    const message = await api(baseUrl, "/coach/message", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, text: `Help me with ${goal.title}` })
+    });
+
+    assert.equal(message.response.status, 200);
+    assert.match(message.body.reply, new RegExp(goal.title));
+    assert.match(message.body.reply, /20-minute step/);
+  });
+});
+
 test("coach rejects empty prompts", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
