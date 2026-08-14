@@ -34,6 +34,13 @@ function now() {
   return new Date().toISOString();
 }
 
+function addDays(value, days) {
+  const date = value ? new Date(value) : new Date();
+  const safeDate = Number.isNaN(date.getTime()) ? new Date() : date;
+  safeDate.setDate(safeDate.getDate() + days);
+  return safeDate.toISOString();
+}
+
 function seedDatabase() {
   return {
     users: [],
@@ -703,6 +710,22 @@ function createBuddyUpServer(options = {}) {
         commitment,
         commitments: db.commitments.filter((item) => item.userId === commitment.userId),
         user: publicUser(user)
+      });
+    }
+
+    if (req.method === "PATCH" && parts[0] === "commitments" && parts[1] && parts[2] === "snooze") {
+      const body = await parseBody(req);
+      const commitment = db.commitments.find((item) => item.id === parts[1]);
+      if (!commitment) return json(res, 404, { error: "Commitment not found" });
+      const days = Number(body.days || 1);
+      if (!Number.isFinite(days) || days < 1 || days > 14) return json(res, 400, { error: "Snooze days must be between 1 and 14" });
+      commitment.dueAt = addDays(commitment.dueAt, days);
+      commitment.snoozedAt = now();
+      commitment.updatedAt = now();
+      await store.write(db);
+      return json(res, 200, {
+        commitment,
+        commitments: db.commitments.filter((item) => item.userId === commitment.userId)
       });
     }
 

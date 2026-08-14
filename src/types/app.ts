@@ -102,6 +102,8 @@ export type Commitment = {
   dueAt: string;
   createdAt: string;
   completedAt?: string;
+  snoozedAt?: string;
+  updatedAt?: string;
 };
 
 export type WeeklyReport = {

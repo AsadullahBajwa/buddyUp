@@ -142,6 +142,12 @@ export const api = {
       method: "PATCH"
     });
   },
+  snoozeCommitment(commitmentId: string, days = 1) {
+    return request<{ commitment: Commitment; commitments: Commitment[] }>(`/commitments/${commitmentId}/snooze`, {
+      method: "PATCH",
+      body: JSON.stringify({ days })
+    });
+  },
   deleteCommitment(commitmentId: string) {
     return request<{ commitment: Commitment; commitments: Commitment[] }>(`/commitments/${commitmentId}`, {
       method: "DELETE"

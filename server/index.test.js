@@ -380,6 +380,30 @@ test("commitments can be deleted when plans change", async () => {
   });
 });
 
+test("commitments can be snoozed when a promise needs more time", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    const created = await api(baseUrl, "/commitments", {
+      method: "POST",
+      body: JSON.stringify({
+        userId: user.id,
+        title: "Finish the reading sprint",
+        dueAt: "2026-05-12T00:00:00.000Z"
+      })
+    });
+
+    const snoozed = await api(baseUrl, `/commitments/${created.body.commitment.id}/snooze`, {
+      method: "PATCH",
+      body: JSON.stringify({ days: 2 })
+    });
+
+    assert.equal(snoozed.response.status, 200);
+    assert.equal(snoozed.body.commitment.status, "open");
+    assert.equal(snoozed.body.commitment.dueAt, "2026-05-14T00:00:00.000Z");
+    assert.ok(snoozed.body.commitment.snoozedAt);
+  });
+});
+
 test("weekly report summarizes accountability progress", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
