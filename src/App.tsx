@@ -281,6 +281,18 @@ export default function App() {
     }
   }
 
+  async function handleSnoozeCommitment(commitmentId: string) {
+    try {
+      const data = await api.snoozeCommitment(commitmentId);
+      setCommitments(data.commitments);
+      await refreshApiStats();
+      if (user?.id) await refreshWeeklyReport(user.id);
+      Alert.alert("Promise snoozed", "Moved this promise forward by one day.");
+    } catch (error) {
+      Alert.alert("Snooze failed", error instanceof Error ? error.message : "Could not snooze commitment");
+    }
+  }
+
   async function handleDeleteCommitment(commitmentId: string) {
     try {
       const data = await api.deleteCommitment(commitmentId);
@@ -345,6 +357,7 @@ export default function App() {
           onAddCommitment={handleAddCommitment}
           onCompleteCommitment={handleCompleteCommitment}
           onDeleteCommitment={handleDeleteCommitment}
+          onSnoozeCommitment={handleSnoozeCommitment}
           onOpenCommunity={() => setRoute("community")}
           onOpenCoach={() => setRoute("coach")}
         />

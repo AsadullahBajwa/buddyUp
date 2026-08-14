@@ -15,6 +15,7 @@ type GoalsScreenProps = {
   onAddCommitment?: (title?: string) => void;
   onCompleteCommitment?: (commitmentId: string) => void;
   onDeleteCommitment?: (commitmentId: string) => void;
+  onSnoozeCommitment?: (commitmentId: string) => void;
   onOpenCommunity?: () => void;
   onOpenCoach?: () => void;
 };
@@ -25,6 +26,7 @@ export function GoalsScreen({
   onAddCommitment,
   onCompleteCommitment,
   onDeleteCommitment,
+  onSnoozeCommitment,
   onOpenCommunity,
   onOpenCoach
 }: GoalsScreenProps) {
@@ -124,6 +126,13 @@ export function GoalsScreen({
                   onPress={() => onDeleteCommitment?.(commitment.id)}
                 >
                   <Feather name="trash-2" color={colors.red} size={16} />
+                </Pressable>
+                <Pressable
+                  accessibilityLabel={`Snooze ${commitment.title}`}
+                  style={styles.promiseSnooze}
+                  onPress={() => onSnoozeCommitment?.(commitment.id)}
+                >
+                  <Feather name="clock" color={colors.blue} size={16} />
                 </Pressable>
               </View>
             ))}
@@ -327,6 +336,16 @@ const styles = StyleSheet.create({
     lineHeight: 18
   },
   promiseDelete: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    height: 34,
+    justifyContent: "center",
+    width: 34
+  },
+  promiseSnooze: {
     alignItems: "center",
     backgroundColor: colors.surfaceHigh,
     borderColor: colors.line,
