@@ -19,6 +19,7 @@ const coachPrompts = ["Build a plan", "I feel stuck", "Motivate me"];
 
 export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps) {
   const fallbackPlan = useMemo(() => goals.slice(0, 4).map((goal) => `Make one concrete step for ${goal.title}`), [goals]);
+  const goalPrompts = useMemo(() => goals.slice(0, 3).map((goal) => `Help me with ${goal.title}`), [goals]);
   const [plan, setPlan] = useState<string[]>(fallbackPlan.length ? fallbackPlan : ["Study 45 minutes", "Workout", "Read 10 pages", "Check in"]);
   const [reply, setReply] = useState("Remember why you started. Small steps every day lead to big changes.");
   const [draft, setDraft] = useState("");
@@ -77,7 +78,7 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
         </View>
 
         <View style={styles.promptRow}>
-          {coachPrompts.map((prompt) => (
+          {[...coachPrompts, ...goalPrompts].map((prompt) => (
             <Pressable
               disabled={isThinking}
               key={prompt}
