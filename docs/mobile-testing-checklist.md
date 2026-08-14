@@ -35,7 +35,7 @@ npm start -- --clear
 ## Core App Flow
 
 - Create an accountability promise from the Goals screen.
-- Complete and delete promises to verify the list updates.
+- Complete, snooze, and delete promises to verify the list updates.
 - Use Discover goal filters and match with a buddy.
 - Confirm matching only works after signup/profile setup has created a real app user.
 - Switch Community tabs and confirm the feed changes for For You, Following, and Groups.
@@ -47,6 +47,7 @@ npm start -- --clear
 - Create a community post and comment; blank submissions should stay disabled.
 - Ask the AI Coach for motivation and confirm the provider label shows `rules` or `ollama`.
 - Tap each AI Coach quick prompt and confirm the plan or reply updates.
+- Tap a goal-specific AI Coach quick prompt and confirm the reply names that goal.
 
 ## Profile And Backend Status
 
