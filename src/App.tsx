@@ -18,7 +18,7 @@ import { ProfileSetupScreen } from "./screens/ProfileSetupScreen";
 import { SplashScreen } from "./screens/SplashScreen";
 import { api } from "./services/api";
 import { buddies as seedBuddies, chatMessages as seedMessages, feedPosts as seedPosts, goals as seedGoals } from "./data/mockData";
-import { ApiHealth, ApiStats, Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, LocalUser, TabKey, WeeklyReport } from "./types/app";
+import { ApiHealth, ApiStats, Buddy, BuddyMatch, ChatMessage, CheckIn, Commitment, FeedPost, Goal, LocalUser, TabKey, WeeklyReport } from "./types/app";
 
 type AuthStep = "splash" | "onboarding" | "auth" | "profile" | "main";
 type RouteKey = TabKey | "community" | "coach";
@@ -31,6 +31,7 @@ export default function App() {
   const [goals, setGoals] = useState<Goal[]>(seedGoals);
   const [posts, setPosts] = useState<FeedPost[]>(seedPosts);
   const [commitments, setCommitments] = useState<Commitment[]>([]);
+  const [recentCheckIns, setRecentCheckIns] = useState<CheckIn[]>([]);
   const [weeklyReport, setWeeklyReport] = useState<WeeklyReport | null>(null);
   const [apiHealth, setApiHealth] = useState<ApiHealth | null>(null);
   const [apiStats, setApiStats] = useState<ApiStats | null>(null);
@@ -71,6 +72,15 @@ export default function App() {
     }
   }
 
+  async function refreshCheckIns(userId: string) {
+    try {
+      const data = await api.checkIns(userId, 5);
+      setRecentCheckIns(data.checkIns);
+    } catch (error) {
+      setRecentCheckIns([]);
+    }
+  }
+
   const restoreOrStart = useCallback(async () => {
     if (isRestoringSession) return;
     setIsRestoringSession(true);
@@ -89,6 +99,7 @@ export default function App() {
       await refreshApiHealth();
       await refreshApiStats();
       await refreshWeeklyReport(data.user.id);
+      await refreshCheckIns(data.user.id);
       setRoute("home");
       setAuthStep("main");
     } catch (error) {
@@ -111,6 +122,7 @@ export default function App() {
         await refreshApiHealth();
         await refreshApiStats();
         await refreshWeeklyReport(data.user.id);
+        await refreshCheckIns(data.user.id);
       })
       .catch(() => undefined);
   }, [refreshApiHealth, refreshApiStats, user?.id]);
@@ -192,6 +204,7 @@ export default function App() {
       const data = await api.checkIn({ userId: user.id, ...input });
       setUser(data.user);
       setGoals(data.goals);
+      setRecentCheckIns((current) => [data.checkIn, ...current.filter((checkIn) => checkIn.id !== data.checkIn.id)].slice(0, 5));
       await refreshApiStats();
       await refreshWeeklyReport(user.id);
       Alert.alert("Check-in saved", `Nice work. You earned XP and updated ${input.completedTaskIds.length} goal(s).`);
@@ -244,6 +257,7 @@ export default function App() {
     setMatches([]);
     setMessages(seedMessages);
     setCommitments([]);
+    setRecentCheckIns([]);
     setWeeklyReport(null);
     setApiHealth(null);
     setApiStats(null);
@@ -382,6 +396,7 @@ export default function App() {
           onLogout={handleLogout}
           apiHealth={apiHealth}
           apiStats={apiStats}
+          recentCheckIns={recentCheckIns}
           user={user}
           weeklyReport={weeklyReport}
         />

@@ -5,7 +5,7 @@ import { Pill } from "../components/Pill";
 import { Screen } from "../components/Screen";
 import { StatCard } from "../components/StatCard";
 import { colors, radii, spacing } from "../theme";
-import { ApiHealth, ApiStats, Commitment, Goal, LocalUser, WeeklyReport } from "../types/app";
+import { ApiHealth, ApiStats, CheckIn, Commitment, Goal, LocalUser, WeeklyReport } from "../types/app";
 
 type ProfileScreenProps = {
   commitments?: Commitment[];
@@ -15,10 +15,17 @@ type ProfileScreenProps = {
   onLogout?: () => void;
   apiHealth?: ApiHealth | null;
   apiStats?: ApiStats | null;
+  recentCheckIns?: CheckIn[];
   weeklyReport?: WeeklyReport | null;
 };
 
-export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout, apiHealth, apiStats, weeklyReport }: ProfileScreenProps) {
+function formatCheckInTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Recently";
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+}
+
+export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout, apiHealth, apiStats, recentCheckIns = [], weeklyReport }: ProfileScreenProps) {
   const displayName = user?.username || "alex_productive";
   const level = user?.level ?? 12;
   const xp = user?.xp ?? 2460;
@@ -34,6 +41,7 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
   const promiseCompletionRate = weeklyReport?.commitmentCompletionRate ?? 0;
   const strongestGoal = weeklyReport?.strongestGoal || localStrongestGoal;
   const focusGoal = weeklyReport?.focusGoal || localFocusGoal;
+  const recentProofs = recentCheckIns.slice(0, 3);
 
   return (
     <Screen footerSpace>
@@ -112,6 +120,30 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
             {apiStats ? `${apiStats.users} users, ${apiStats.matches} matches, ${apiStats.community.posts} posts tracked` : "Backend stats loading"}
           </Text>
         </View>
+      </View>
+
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>Recent proofs</Text>
+          <Text style={styles.activityCount}>{recentProofs.length} saved</Text>
+        </View>
+        {recentProofs.length ? (
+          <View style={styles.activityList}>
+            {recentProofs.map((checkIn) => (
+              <View key={checkIn.id} style={styles.activityRow}>
+                <View style={styles.activityIcon}>
+                  <Feather name={checkIn.type === "habit" ? "activity" : checkIn.type === "voice" ? "mic" : "check"} color={colors.emerald} size={16} />
+                </View>
+                <View style={styles.activityCopy}>
+                  <Text style={styles.activityText}>{checkIn.note || `${checkIn.completedTaskIds.length} goal proof submitted`}</Text>
+                  <Text style={styles.activityMeta}>{checkIn.type} check-in - {formatCheckInTime(checkIn.createdAt)}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.emptyActivity}>Submit a check-in and your latest proofs will appear here.</Text>
+        )}
       </View>
 
       <View style={styles.card}>
@@ -244,6 +276,52 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "800",
     lineHeight: 18
+  },
+  activityCount: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800"
+  },
+  activityList: {
+    gap: spacing.md,
+    marginTop: spacing.lg
+  },
+  activityRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.md
+  },
+  activityIcon: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.emerald,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    height: 34,
+    justifyContent: "center",
+    width: 34
+  },
+  activityCopy: {
+    flex: 1
+  },
+  activityText: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: "800",
+    lineHeight: 18
+  },
+  activityMeta: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "800",
+    marginTop: spacing.xs,
+    textTransform: "capitalize"
+  },
+  emptyActivity: {
+    color: colors.soft,
+    fontSize: 13,
+    lineHeight: 19,
+    marginTop: spacing.lg
   },
   pills: {
     flexDirection: "row",
