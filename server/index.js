@@ -637,6 +637,20 @@ function createBuddyUpServer(options = {}) {
       return json(res, 200, { messages: db.messages.filter((item) => item.matchId === body.matchId) });
     }
 
+    if (req.method === "GET" && url.pathname === "/checkins") {
+      const userId = url.searchParams.get("userId");
+      const user = db.users.find((item) => item.id === userId);
+      if (!user) return json(res, 404, { error: "User not found" });
+      const requestedLimit = Number(url.searchParams.get("limit") || 5);
+      const limit = Number.isFinite(requestedLimit) ? Math.min(20, Math.max(1, requestedLimit)) : 5;
+      const checkIns = db.checkIns
+        .filter((checkIn) => checkIn.userId === user.id)
+        .slice()
+        .reverse()
+        .slice(0, limit);
+      return json(res, 200, { checkIns });
+    }
+
     if (req.method === "POST" && url.pathname === "/checkins") {
       const body = await parseBody(req);
       const user = db.users.find((item) => item.id === body.userId);

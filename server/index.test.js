@@ -331,6 +331,27 @@ test("check-in validates user and media type", async () => {
   });
 });
 
+test("check-in history returns recent entries first", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    await api(baseUrl, "/checkins", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, completedTaskIds: [], note: "Morning proof", type: "text" })
+    });
+    await api(baseUrl, "/checkins", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, completedTaskIds: [], note: "Evening proof", type: "habit" })
+    });
+
+    const history = await api(baseUrl, `/checkins?userId=${user.id}&limit=1`);
+
+    assert.equal(history.response.status, 200);
+    assert.equal(history.body.checkIns.length, 1);
+    assert.equal(history.body.checkIns[0].note, "Evening proof");
+    assert.equal(history.body.checkIns[0].type, "habit");
+  });
+});
+
 test("commitments can be created and completed for accountability credit", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);

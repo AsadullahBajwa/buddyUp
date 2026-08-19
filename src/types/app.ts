@@ -106,6 +106,15 @@ export type Commitment = {
   updatedAt?: string;
 };
 
+export type CheckIn = {
+  id: string;
+  userId: string;
+  note: string;
+  type: string;
+  completedTaskIds: string[];
+  createdAt: string;
+};
+
 export type WeeklyReport = {
   userId: string;
   weekOf: string;

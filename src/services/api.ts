@@ -1,6 +1,6 @@
 import Constants from "expo-constants";
 
-import { ApiHealth, ApiStats, Buddy, BuddyMatch, ChatMessage, Commitment, FeedPost, Goal, GoalCategory, LocalUser, WeeklyReport } from "../types/app";
+import { ApiHealth, ApiStats, Buddy, BuddyMatch, ChatMessage, CheckIn, Commitment, FeedPost, Goal, GoalCategory, LocalUser, WeeklyReport } from "../types/app";
 
 type ApiResponse<T> = T & {
   error?: string;
@@ -106,10 +106,13 @@ export const api = {
     });
   },
   checkIn(input: { userId: string; completedTaskIds: string[]; note: string; type: string }) {
-    return request<{ user: LocalUser; goals: Goal[] }>("/checkins", {
+    return request<{ checkIn: CheckIn; user: LocalUser; goals: Goal[] }>("/checkins", {
       method: "POST",
       body: JSON.stringify(input)
     });
+  },
+  checkIns(userId: string, limit = 5) {
+    return request<{ checkIns: CheckIn[] }>(`/checkins?userId=${userId}&limit=${limit}`);
   },
   posts() {
     return request<{ posts: FeedPost[] }>("/community/posts");
