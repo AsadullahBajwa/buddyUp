@@ -43,6 +43,7 @@ npm start -- --clear
 - Tap each quick chat prompt and confirm it sends a real buddy message.
 - Submit a check-in with at least one selected goal or a note.
 - Confirm the selected-goal count changes when goals are toggled.
+- Tap each check-in note template and confirm it fills the note field.
 - Try an empty check-in and confirm the button stays disabled.
 - Create a community post and comment; blank submissions should stay disabled.
 - Ask the AI Coach for motivation and confirm the provider label shows `rules` or `ollama`.
@@ -54,6 +55,7 @@ npm start -- --clear
 - Open Profile and confirm API health shows online.
 - Confirm backend stats show users, matches, and posts.
 - Confirm weekly insights update after check-ins and promises.
+- Confirm recent proofs show the latest check-in notes first.
 
 ## Common Fixes
 
