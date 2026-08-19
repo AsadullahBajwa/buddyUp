@@ -16,6 +16,8 @@ const checkInTypes = [
   { label: "Habit", icon: "activity" as const }
 ];
 
+const noteTemplates = ["Finished my proof", "Need a reset", "Buddy check needed"];
+
 type CheckInScreenProps = {
   goals?: Goal[];
   isSubmitting?: boolean;
@@ -76,6 +78,13 @@ export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: Ch
       </View>
 
       <TextField placeholder="Add a note..." multiline onChangeText={setNote} style={styles.note} value={note} />
+      <View style={styles.templateRow}>
+        {noteTemplates.map((template) => (
+          <Pressable key={template} style={styles.templateChip} onPress={() => setNote(template)}>
+            <Text style={styles.templateText}>{template}</Text>
+          </Pressable>
+        ))}
+      </View>
       <GradientButton
         disabled={isSubmitting || !canSubmit}
         label={isSubmitting ? "Saving..." : "Check In"}
@@ -184,6 +193,25 @@ const styles = StyleSheet.create({
     minHeight: 88,
     paddingTop: spacing.md,
     textAlignVertical: "top"
+  },
+  templateRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginTop: spacing.md
+  },
+  templateChip: {
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  templateText: {
+    color: colors.soft,
+    fontSize: 12,
+    fontWeight: "800"
   },
   button: {
     marginTop: spacing.lg
