@@ -32,6 +32,13 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
     [goalFilter, remoteBuddies, seriousOnly]
   );
   const buddy = pool.length ? pool[index % pool.length] : null;
+  const matchReasons = buddy
+    ? [
+        `${buddy.reliabilityScore}% reliable`,
+        `${buddy.streakDays}-day streak`,
+        goalFilter === "All" ? `${buddy.goals[0]} focus` : `${goalFilter} match`
+      ]
+    : [];
 
   useEffect(() => {
     setIsLoading(true);
@@ -135,6 +142,14 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
             </Text>
             <Text style={styles.location}>{buddy.city} - {buddy.timezone}</Text>
             <Text style={styles.headline}>{buddy.headline}</Text>
+            <View style={styles.matchReasons}>
+              {matchReasons.map((reason) => (
+                <View key={reason} style={styles.matchReason}>
+                  <Feather name="check-circle" color={colors.emerald} size={13} />
+                  <Text style={styles.matchReasonText}>{reason}</Text>
+                </View>
+              ))}
+            </View>
             <View style={styles.pills}>
               {buddy.goals.map((goal, goalIndex) => (
                 <Pill key={goal} label={goal} tone={goalIndex === 0 ? "orange" : "default"} />
@@ -344,6 +359,28 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     marginTop: spacing.md
+  },
+  matchReasons: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginTop: spacing.md
+  },
+  matchReason: {
+    alignItems: "center",
+    backgroundColor: "rgba(8, 13, 24, 0.72)",
+    borderColor: "rgba(255,255,255,0.16)",
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs
+  },
+  matchReasonText: {
+    color: colors.text,
+    fontSize: 11,
+    fontWeight: "900"
   },
   pills: {
     flexDirection: "row",
