@@ -37,10 +37,11 @@ npm start -- --clear
 - Create an accountability promise from the Goals screen.
 - Complete, snooze, and delete promises to verify the list updates.
 - Use Discover goal filters and match with a buddy.
+- Confirm the buddy card shows match reasons such as reliability, streak, and goal fit.
 - Confirm matching only works after signup/profile setup has created a real app user.
 - Switch Community tabs and confirm the feed changes for For You, Following, and Groups.
 - Send a non-empty chat message and confirm the buddy reply appears.
-- Tap each quick chat prompt and confirm it sends a real buddy message.
+- Tap each quick chat prompt and confirm the icon action sends a real message with a contextual buddy reply.
 - Submit a check-in with at least one selected goal or a note.
 - Confirm the selected-goal count changes when goals are toggled.
 - Tap each check-in note template and confirm it fills the note field.

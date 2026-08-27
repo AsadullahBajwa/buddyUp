@@ -28,10 +28,10 @@ This generated preview summarizes the main app screens: goals, discovery, check-
 - Onboarding, signup, login, Google OAuth handoff, and profile setup
 - Goal dashboard with streaks, progress, promises, community shortcut, and AI coach shortcut
 - Goal dashboard promise summary with open, closed, and total counts
-- Goal-filtered buddy discovery backed by the API with visible result counts and filter reset
+- Goal-filtered buddy discovery backed by the API with visible result counts, match reasons, and filter reset
 - Daily check-ins with task completion counts, quick note templates, notes, XP, streak, and reliability updates
 - Accountability promises can be completed, snoozed by one day, or deleted as plans change
-- Buddy matching with user validation, starter chat messages, validated chat sends, and quick accountability prompts
+- Buddy matching with user validation, starter chat messages, validated chat sends, contextual replies, and quick accountability prompts
 - Community feed with interactive For You, Following, and Groups tabs plus posts, comments, upvotes, and input validation
 - AI coach daily plan, quick prompts, goal-aware fallback replies, validated message endpoint, and Ollama support
 - Profile insights backed by weekly reports and recent check-in proof history
@@ -303,6 +303,7 @@ Useful endpoints while testing:
 - `GET /stats` returns aggregate users, goals, buddies, matches, check-ins, promises, and community activity.
 - `GET /buddies?seriousOnly=true&goal=Coding` returns filtered buddy suggestions.
 - `GET /checkins?userId=...&limit=5` returns recent proof history for the Profile screen.
+- `POST /messages` validates match IDs and returns contextual buddy accountability replies.
 - `POST /commitments` creates an accountability promise.
 - `PATCH /commitments/:id/complete` closes a promise and awards accountability credit.
 - `PATCH /commitments/:id/snooze` moves an open promise forward when the plan needs more time.
@@ -311,18 +312,18 @@ Useful endpoints while testing:
 - `POST /matches` validates both the app user and buddy before creating a match.
 - `POST /coach/message` rejects blank prompts before attempting Ollama or fallback coaching.
 
-The API rejects invalid profile setup fields, unknown match users, unknown check-in users, unsupported check-in media types, empty coach prompts, empty chat messages, and blank community posts or comments. Those checks are mirrored in the mobile UI where practical.
+The API rejects invalid profile setup fields, unknown match users, missing chat matches, unknown check-in users, unsupported check-in media types, empty coach prompts, empty chat messages, and blank community posts or comments. Those checks are mirrored in the mobile UI where practical.
 
 Recent mobile polish:
 
 - The Goals screen summarizes promise progress before the user opens Profile.
 - The Goals screen can snooze an open promise without deleting it.
-- The Discover screen shows how many buddies match the current filter and offers a reset action for empty results.
+- The Discover screen shows how many buddies match the current filter, why a buddy matches, and a reset action for empty results.
 - The Check-in screen shows how many goals are selected before submitting progress.
 - The Check-in screen includes quick note templates for faster proof submissions.
 - The Profile screen shows the latest saved check-in proofs from the API.
 - The Community screen tabs now filter feed views for faster mobile scanning.
-- The Chat screen includes quick accountability prompts for common buddy updates.
+- The Chat screen includes icon quick actions and contextual buddy replies for common accountability updates.
 - The AI Coach screen includes quick prompt chips for plans, stuck moments, motivation, and active goals.
 - The weekly report now returns open promises and promise completion rate for stronger profile insights.
 
