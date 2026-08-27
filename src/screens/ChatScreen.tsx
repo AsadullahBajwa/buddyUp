@@ -14,7 +14,11 @@ type ChatScreenProps = {
   onSendMessage?: (text: string) => Promise<void> | void;
 };
 
-const quickPrompts = ["Starting now", "Proof after session", "Check on me tonight"];
+const quickPrompts = [
+  { label: "Start", text: "Starting now", icon: "play-circle" as const },
+  { label: "Proof", text: "Proof after session", icon: "check-circle" as const },
+  { label: "Tonight", text: "Check on me tonight", icon: "moon" as const }
+];
 
 export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSendMessage }: ChatScreenProps) {
   const [draft, setDraft] = useState("");
@@ -44,7 +48,7 @@ export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSend
         <Image source={{ uri: buddy.avatar }} style={styles.avatar} />
         <View style={styles.headerCopy}>
           <Text style={styles.name}>{buddy.name}</Text>
-          <Text style={styles.status}>Online</Text>
+          <Text style={styles.status}>Accountability buddy - {messages.length} messages</Text>
         </View>
         <Pressable style={styles.iconButton}>
           <Feather name="phone" color={colors.text} size={19} />
@@ -73,8 +77,9 @@ export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSend
 
       <View style={styles.quickPrompts}>
         {quickPrompts.map((prompt) => (
-          <Pressable disabled={sending} key={prompt} style={[styles.quickPrompt, sending && styles.sendDisabled]} onPress={() => sendText(prompt)}>
-            <Text style={styles.quickPromptText}>{prompt}</Text>
+          <Pressable disabled={sending} key={prompt.label} style={[styles.quickPrompt, sending && styles.sendDisabled]} onPress={() => sendText(prompt.text)}>
+            <Feather name={prompt.icon} color={colors.orange} size={14} />
+            <Text style={styles.quickPromptText}>{prompt.label}</Text>
           </Pressable>
         ))}
       </View>
@@ -188,10 +193,13 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md
   },
   quickPrompt: {
+    alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
     borderRadius: radii.pill,
     borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.xs,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm
   },
