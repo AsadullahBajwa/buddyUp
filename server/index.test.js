@@ -544,6 +544,25 @@ test("chat sends a message and receives an accountability reply", async () => {
     assert.equal(sent.response.status, 200);
     assert.equal(sent.body.messages.at(-2).sender, "me");
     assert.equal(sent.body.messages.at(-1).sender, "buddy");
+    assert.match(sent.body.messages.at(-1).text, /tonight/i);
+  });
+});
+
+test("chat replies react to proof prompts", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    const matched = await api(baseUrl, "/matches", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, buddyId: "sara" })
+    });
+
+    const sent = await api(baseUrl, "/messages", {
+      method: "POST",
+      body: JSON.stringify({ matchId: matched.body.match.id, text: "Proof after session" })
+    });
+
+    assert.equal(sent.response.status, 200);
+    assert.match(sent.body.messages.at(-1).text, /close the loop/i);
   });
 });
 
@@ -556,6 +575,18 @@ test("chat rejects empty messages", async () => {
 
     assert.equal(empty.response.status, 400);
     assert.equal(empty.body.error, "Message text is required");
+  });
+});
+
+test("chat rejects messages for missing matches", async () => {
+  await withApi(async (baseUrl) => {
+    const sent = await api(baseUrl, "/messages", {
+      method: "POST",
+      body: JSON.stringify({ matchId: "missing-match", text: "Starting now" })
+    });
+
+    assert.equal(sent.response.status, 404);
+    assert.equal(sent.body.error, "Match not found");
   });
 });
 

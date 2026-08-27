@@ -306,6 +306,14 @@ function coachReply(text, goals) {
   return "Start with one visible action and check in when it is done.";
 }
 
+function buddyReplyFor(text) {
+  const lower = String(text).toLowerCase();
+  if (lower.includes("proof")) return "Perfect. Send the proof here after the session and I will help you close the loop.";
+  if (lower.includes("check on me") || lower.includes("tonight")) return "Locked in. I will expect an update tonight, even if it is a tiny one.";
+  if (lower.includes("starting")) return "Good. Start now, keep it small, and message me when the first block is done.";
+  return "Nice. Send the proof when it is done and I will check in again tonight.";
+}
+
 function buildWeeklyReport(user, goals, commitments, checkIns, matches) {
   const overallProgress = goals.length
     ? Math.round((goals.reduce((sum, goal) => sum + Number(goal.progress || 0), 0) / goals.length) * 100)
@@ -616,9 +624,11 @@ function createBuddyUpServer(options = {}) {
       const body = await parseBody(req);
       const text = String(body.text || "").trim();
       if (!text) return json(res, 400, { error: "Message text is required" });
+      const match = db.matches.find((item) => item.id === body.matchId);
+      if (!match) return json(res, 404, { error: "Match not found" });
       const message = {
         id: id("msg"),
-        matchId: body.matchId,
+        matchId: match.id,
         sender: "me",
         text,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -626,15 +636,15 @@ function createBuddyUpServer(options = {}) {
       };
       const reply = {
         id: id("msg"),
-        matchId: body.matchId,
+        matchId: match.id,
         sender: "buddy",
-        text: "Nice. Send the proof when it is done and I will check in again tonight.",
+        text: buddyReplyFor(text),
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         createdAt: now()
       };
       db.messages.push(message, reply);
       await store.write(db);
-      return json(res, 200, { messages: db.messages.filter((item) => item.matchId === body.matchId) });
+      return json(res, 200, { messages: db.messages.filter((item) => item.matchId === match.id) });
     }
 
     if (req.method === "GET" && url.pathname === "/checkins") {
