@@ -314,6 +314,20 @@ function buddyReplyFor(text) {
   return "Nice. Send the proof when it is done and I will check in again tonight.";
 }
 
+function scoreBuddyForUser(buddy, user) {
+  const userGoals = new Set((user.goals || []).map((goal) => String(goal).toLowerCase()));
+  const sharedGoals = buddy.goals.filter((goal) => userGoals.has(String(goal).toLowerCase()));
+  const reliabilityPoints = Math.round(Number(buddy.reliabilityScore || 0) / 10);
+  const streakPoints = Math.min(10, Math.round(Number(buddy.streakDays || 0) / 3));
+  const seriousPoints = buddy.serious ? 10 : 0;
+  const sharedGoalPoints = sharedGoals.length * 18;
+  return {
+    ...buddy,
+    sharedGoals,
+    matchScore: Math.min(100, reliabilityPoints + streakPoints + seriousPoints + sharedGoalPoints)
+  };
+}
+
 function buildWeeklyReport(user, goals, commitments, checkIns, matches) {
   const overallProgress = goals.length
     ? Math.round((goals.reduce((sum, goal) => sum + Number(goal.progress || 0), 0) / goals.length) * 100)
@@ -569,6 +583,18 @@ function createBuddyUpServer(options = {}) {
         buddies = buddies.filter((buddy) => buddy.goals.some((item) => String(item).toLowerCase() === goal));
       }
       return json(res, 200, { buddies });
+    }
+
+    if (req.method === "GET" && url.pathname === "/buddies/recommended") {
+      const userId = url.searchParams.get("userId");
+      const user = db.users.find((item) => item.id === userId);
+      if (!user) return json(res, 404, { error: "User not found" });
+      const seriousOnly = url.searchParams.get("seriousOnly") === "true";
+      const ranked = db.buddies
+        .filter((buddy) => !seriousOnly || buddy.serious)
+        .map((buddy) => scoreBuddyForUser(buddy, user))
+        .sort((a, b) => b.matchScore - a.matchScore || b.reliabilityScore - a.reliabilityScore);
+      return json(res, 200, { buddies: ranked });
     }
 
     if (req.method === "GET" && url.pathname === "/reports/weekly") {

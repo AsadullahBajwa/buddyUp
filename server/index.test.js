@@ -528,6 +528,37 @@ test("buddy discovery can be filtered by goal", async () => {
   });
 });
 
+test("buddy recommendations rank shared goals first", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    await api(baseUrl, `/users/${user.id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        username: "alex_productive",
+        age: 22,
+        timezone: "GMT+1",
+        goals: ["Coding", "Fitness"]
+      })
+    });
+
+    const recommended = await api(baseUrl, `/buddies/recommended?userId=${user.id}&seriousOnly=true`);
+
+    assert.equal(recommended.response.status, 200);
+    assert.equal(recommended.body.buddies[0].id, "leo");
+    assert.deepEqual(recommended.body.buddies[0].sharedGoals, ["Coding", "Fitness"]);
+    assert.ok(recommended.body.buddies[0].matchScore > recommended.body.buddies[1].matchScore);
+  });
+});
+
+test("buddy recommendations validate the user", async () => {
+  await withApi(async (baseUrl) => {
+    const recommended = await api(baseUrl, "/buddies/recommended?userId=missing");
+
+    assert.equal(recommended.response.status, 404);
+    assert.equal(recommended.body.error, "User not found");
+  });
+});
+
 test("chat sends a message and receives an accountability reply", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
