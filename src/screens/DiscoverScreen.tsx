@@ -11,11 +11,12 @@ import { Buddy, GoalCategory } from "../types/app";
 
 type DiscoverScreenProps = {
   onMatch?: (buddy: Buddy) => void;
+  userId?: string;
 };
 
 const goalFilters: Array<"All" | GoalCategory> = ["All", "Fitness", "Study", "Coding", "Meditation", "Productivity"];
 
-export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
+export function DiscoverScreen({ onMatch, userId }: DiscoverScreenProps) {
   const [index, setIndex] = useState(0);
   const [seriousOnly, setSeriousOnly] = useState(true);
   const [goalFilter, setGoalFilter] = useState<"All" | GoalCategory>("All");
@@ -34,23 +35,25 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
   const buddy = pool.length ? pool[index % pool.length] : null;
   const matchReasons = buddy
     ? [
+        buddy.matchScore ? `${buddy.matchScore}% match` : "",
         `${buddy.reliabilityScore}% reliable`,
         `${buddy.streakDays}-day streak`,
-        goalFilter === "All" ? `${buddy.goals[0]} focus` : `${goalFilter} match`
-      ]
+        goalFilter === "All" ? `${buddy.sharedGoals?.[0] || buddy.goals[0]} focus` : `${goalFilter} match`
+      ].filter(Boolean)
     : [];
 
   useEffect(() => {
     setIsLoading(true);
     setLoadError("");
-    api.buddies(seriousOnly, goalFilter === "All" ? undefined : goalFilter)
+    const request = userId ? api.recommendedBuddies(userId, seriousOnly) : api.buddies(seriousOnly, goalFilter === "All" ? undefined : goalFilter);
+    request
       .then((data) => {
         setRemoteBuddies(data.buddies);
         setIndex(0);
       })
       .catch(() => setLoadError("Could not refresh buddies. Showing saved suggestions."))
       .finally(() => setIsLoading(false));
-  }, [goalFilter, seriousOnly]);
+  }, [goalFilter, seriousOnly, userId]);
 
   function nextBuddy() {
     setIndex((current) => current + 1);
@@ -134,7 +137,7 @@ export function DiscoverScreen({ onMatch }: DiscoverScreenProps) {
           <View style={styles.overlay} />
           <View style={styles.score}>
             <Ionicons name="shield-checkmark" color={colors.emerald} size={18} />
-            <Text style={styles.scoreText}>{buddy.reliabilityScore}% reliable</Text>
+            <Text style={styles.scoreText}>{buddy.matchScore ? `${buddy.matchScore}% recommended` : `${buddy.reliabilityScore}% reliable`}</Text>
           </View>
           <View style={styles.cardCopy}>
             <Text style={styles.name}>

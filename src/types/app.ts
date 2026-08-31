@@ -27,6 +27,8 @@ export type Buddy = {
   reliabilityScore: number;
   streakDays: number;
   serious: boolean;
+  sharedGoals?: GoalCategory[];
+  matchScore?: number;
 };
 
 export type Goal = {

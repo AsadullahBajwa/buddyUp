@@ -90,6 +90,10 @@ export const api = {
     if (goal) params.set("goal", goal);
     return request<{ buddies: Buddy[] }>(`/buddies?${params.toString()}`);
   },
+  recommendedBuddies(userId: string, seriousOnly: boolean) {
+    const params = new URLSearchParams({ userId, seriousOnly: String(seriousOnly) });
+    return request<{ buddies: Buddy[] }>(`/buddies/recommended?${params.toString()}`);
+  },
   match(userId: string, buddyId: string) {
     return request<{ match: BuddyMatch; buddy: Buddy }>("/matches", {
       method: "POST",

@@ -385,7 +385,7 @@ export default function App() {
         />
       ) : null}
       {route === "coach" ? <AICoachScreen goals={goals} userId={user?.id} onBack={() => setRoute("home")} /> : null}
-      {route === "discover" ? <DiscoverScreen onMatch={handleMatch} /> : null}
+      {route === "discover" ? <DiscoverScreen userId={user?.id} onMatch={handleMatch} /> : null}
       {route === "checkin" ? <CheckInScreen goals={goals} isSubmitting={isSavingCheckIn} onSubmit={handleCheckIn} /> : null}
       {route === "chat" ? <ChatScreen buddy={activeBuddy} messages={messages} onSendMessage={handleSendMessage} /> : null}
       {route === "profile" ? (
