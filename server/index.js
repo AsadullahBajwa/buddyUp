@@ -338,6 +338,12 @@ function buildWeeklyReport(user, goals, commitments, checkIns, matches) {
   const openCommitments = commitments.filter((commitment) => commitment.status === "open").length;
   const totalCommitments = commitments.length;
   const commitmentCompletionRate = totalCommitments ? Math.round((completedCommitments / totalCommitments) * 100) : 0;
+  const checkInTypes = checkIns.reduce((counts, checkIn) => {
+    const type = checkIn.type || "text";
+    counts[type] = (counts[type] || 0) + 1;
+    return counts;
+  }, {});
+  const latestCheckIn = [...checkIns].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 
   return {
     userId: user.id,
@@ -345,6 +351,8 @@ function buildWeeklyReport(user, goals, commitments, checkIns, matches) {
     overallProgress,
     reliabilityScore: user.reliabilityScore,
     checkIns: checkIns.length,
+    checkInTypes,
+    lastCheckInAt: latestCheckIn?.createdAt || "",
     completedCommitments,
     openCommitments,
     commitmentCompletionRate,

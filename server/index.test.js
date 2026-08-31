@@ -448,6 +448,8 @@ test("weekly report summarizes accountability progress", async () => {
     assert.equal(report.body.report.openCommitments, 0);
     assert.equal(report.body.report.commitmentCompletionRate, 100);
     assert.equal(report.body.report.checkIns, 1);
+    assert.equal(report.body.report.checkInTypes.text, 1);
+    assert.ok(report.body.report.lastCheckInAt);
     assert.equal(report.body.report.activeMatches, 0);
     assert.ok(report.body.report.overallProgress > 0);
     assert.ok(report.body.report.nextActions.length >= 3);
