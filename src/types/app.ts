@@ -121,10 +121,13 @@ export type WeeklyReport = {
   userId: string;
   weekOf: string;
   overallProgress: number;
+  reliabilityScore: number;
   completedCommitments: number;
   openCommitments: number;
   commitmentCompletionRate: number;
   checkIns: number;
+  checkInTypes: Record<string, number>;
+  lastCheckInAt: string;
   activeMatches: number;
   strongestGoal: string;
   focusGoal: string;

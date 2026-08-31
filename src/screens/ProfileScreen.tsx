@@ -25,6 +25,11 @@ function formatCheckInTime(value: string) {
   return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
+function formatReportDate(value?: string) {
+  if (!value) return "No check-ins yet";
+  return formatCheckInTime(value);
+}
+
 export function ProfileScreen({ commitments = [], user, goals = [], matchesCount = 0, onLogout, apiHealth, apiStats, recentCheckIns = [], weeklyReport }: ProfileScreenProps) {
   const displayName = user?.username || "alex_productive";
   const level = user?.level ?? 12;
@@ -41,6 +46,11 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
   const promiseCompletionRate = weeklyReport?.commitmentCompletionRate ?? 0;
   const strongestGoal = weeklyReport?.strongestGoal || localStrongestGoal;
   const focusGoal = weeklyReport?.focusGoal || localFocusGoal;
+  const reliabilityScore = weeklyReport?.reliabilityScore ?? user?.reliabilityScore ?? 0;
+  const lastCheckInLabel = formatReportDate(weeklyReport?.lastCheckInAt);
+  const topCheckInType = weeklyReport?.checkInTypes
+    ? Object.entries(weeklyReport.checkInTypes).sort((a, b) => b[1] - a[1])[0]?.[0]
+    : "";
   const recentProofs = recentCheckIns.slice(0, 3);
 
   return (
@@ -104,6 +114,20 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
           <Feather name="check-circle" color={colors.purple} size={18} />
           <Text style={styles.insightText}>{completedPromises} promise{completedPromises === 1 ? "" : "s"} closed this week</Text>
         </View>
+        <View style={styles.insightRow}>
+          <Feather name="shield" color={colors.emerald} size={18} />
+          <Text style={styles.insightText}>Reliability score: {reliabilityScore}%</Text>
+        </View>
+        <View style={styles.insightRow}>
+          <Feather name="clipboard" color={colors.yellow} size={18} />
+          <Text style={styles.insightText}>Latest check-in: {lastCheckInLabel}</Text>
+        </View>
+        {topCheckInType ? (
+          <View style={styles.insightRow}>
+            <Feather name="bar-chart-2" color={colors.blue} size={18} />
+            <Text style={styles.insightText}>Top proof type: {topCheckInType}</Text>
+          </View>
+        ) : null}
         <View style={styles.insightRow}>
           <Feather name="clock" color={colors.blue} size={18} />
           <Text style={styles.insightText}>{openPromises} open promise{openPromises === 1 ? "" : "s"} still need attention</Text>
