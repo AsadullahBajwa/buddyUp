@@ -154,6 +154,14 @@ export function GoalsScreen({
                 <Text style={styles.goalTarget}>{goal.target}</Text>
               </View>
               <ProgressBar progress={goal.progress} accent={goal.accent} />
+              <Pressable
+                accessibilityLabel={`Create promise for ${goal.title}`}
+                style={styles.goalPromiseButton}
+                onPress={() => onAddCommitment?.(`Make progress on ${goal.title} today`)}
+              >
+                <Feather name="plus-circle" color={goal.accent} size={14} />
+                <Text style={styles.goalPromiseText}>Promise this</Text>
+              </Pressable>
             </View>
           </View>
         ))}
@@ -398,5 +406,22 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 12,
     fontWeight: "800"
+  },
+  goalPromiseButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs
+  },
+  goalPromiseText: {
+    color: colors.soft,
+    fontSize: 11,
+    fontWeight: "900"
   }
 });
