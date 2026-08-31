@@ -35,9 +35,11 @@ npm start -- --clear
 ## Core App Flow
 
 - Create an accountability promise from the Goals screen.
+- Tap `Promise this` on a goal and confirm it creates a real open promise.
 - Complete, snooze, and delete promises to verify the list updates.
 - Use Discover goal filters and match with a buddy.
 - Confirm the buddy card shows match reasons such as reliability, streak, and goal fit.
+- After signup/profile setup, confirm Discover shows personalized match scores and shared goals.
 - Confirm matching only works after signup/profile setup has created a real app user.
 - Switch Community tabs and confirm the feed changes for For You, Following, and Groups.
 - Send a non-empty chat message and confirm the buddy reply appears.
@@ -56,6 +58,7 @@ npm start -- --clear
 - Open Profile and confirm API health shows online.
 - Confirm backend stats show users, matches, and posts.
 - Confirm weekly insights update after check-ins and promises.
+- Confirm weekly insights show reliability, latest check-in date, and top proof type after at least one check-in.
 - Confirm recent proofs show the latest check-in notes first.
 
 ## Common Fixes
