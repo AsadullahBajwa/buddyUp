@@ -55,10 +55,18 @@ export function GoalsScreen({
         </Pressable>
       </View>
 
-      <View style={styles.ring}>
-        <View style={styles.innerRing}>
+      <View style={styles.overview}>
+        <View style={styles.overviewHeader}>
+          <View>
+            <Text style={styles.overviewLabel}>Weekly progress</Text>
+            <Text style={styles.overviewTitle}>Stay consistent</Text>
+          </View>
           <Text style={styles.percent}>{overall}%</Text>
-          <Text style={styles.percentLabel}>Overall progress</Text>
+        </View>
+        <ProgressBar progress={overall / 100} accent={colors.orange} />
+        <View style={styles.overviewMeta}>
+          <Text style={styles.overviewMetaText}>{openCommitmentCount} open promises</Text>
+          <Text style={styles.overviewMetaText}>{completedCommitmentCount} closed</Text>
         </View>
       </View>
 
@@ -179,7 +187,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "900",
     letterSpacing: 0
   },
@@ -199,29 +207,45 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800"
   },
-  ring: {
-    alignItems: "center",
-    alignSelf: "center",
-    borderColor: colors.orange,
-    borderLeftColor: colors.purple,
-    borderRadius: 92,
-    borderWidth: 14,
-    height: 184,
-    justifyContent: "center",
+  overview: {
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    borderWidth: 1,
     marginTop: spacing.xxl,
-    width: 184
+    padding: spacing.lg
   },
-  innerRing: {
+  overviewHeader: {
     alignItems: "center",
-    justifyContent: "center"
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: spacing.lg
+  },
+  overviewLabel: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900",
+    letterSpacing: 0,
+    textTransform: "uppercase"
+  },
+  overviewTitle: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: "900",
+    marginTop: spacing.xs
   },
   percent: {
     color: colors.text,
-    fontSize: 40,
+    fontSize: 34,
     fontWeight: "900",
     letterSpacing: 0
   },
-  percentLabel: {
+  overviewMeta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: spacing.md
+  },
+  overviewMetaText: {
     color: colors.muted,
     fontSize: 12,
     fontWeight: "800"
@@ -235,7 +259,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flex: 1,
     flexDirection: "row",
@@ -275,7 +299,7 @@ const styles = StyleSheet.create({
   addPromise: {
     alignItems: "center",
     backgroundColor: colors.orange,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     height: 40,
     justifyContent: "center",
     width: 40
@@ -294,7 +318,7 @@ const styles = StyleSheet.create({
   promiseStat: {
     backgroundColor: colors.surfaceHigh,
     borderColor: colors.line,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flex: 1,
     paddingHorizontal: spacing.md,
@@ -330,7 +354,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surfaceHigh,
     borderColor: colors.emerald,
-    borderRadius: radii.pill,
+    borderRadius: radii.md,
     borderWidth: 1,
     height: 28,
     justifyContent: "center",
@@ -347,7 +371,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surfaceHigh,
     borderColor: colors.line,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     borderWidth: 1,
     height: 34,
     justifyContent: "center",
@@ -357,7 +381,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surfaceHigh,
     borderColor: colors.line,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     borderWidth: 1,
     height: 34,
     justifyContent: "center",
@@ -381,7 +405,7 @@ const styles = StyleSheet.create({
   goalIcon: {
     alignItems: "center",
     backgroundColor: colors.surface,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     height: 42,
     justifyContent: "center",
@@ -412,7 +436,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.pill,
+    borderRadius: radii.md,
     borderWidth: 1,
     flexDirection: "row",
     gap: spacing.xs,
