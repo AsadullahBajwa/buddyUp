@@ -48,11 +48,26 @@ export function ChatScreen({ buddy = buddies[0], messages = chatMessages, onSend
         <Image source={{ uri: buddy.avatar }} style={styles.avatar} />
         <View style={styles.headerCopy}>
           <Text style={styles.name}>{buddy.name}</Text>
-          <Text style={styles.status}>Accountability buddy - {messages.length} messages</Text>
+          <Text style={styles.status}>Accountability thread - {messages.length} messages</Text>
         </View>
         <Pressable style={styles.iconButton}>
           <Feather name="phone" color={colors.text} size={19} />
         </Pressable>
+      </View>
+
+      <View style={styles.threadMeta}>
+        <View>
+          <Text style={styles.metaLabel}>Reliability</Text>
+          <Text style={styles.metaValue}>{buddy.reliabilityScore}%</Text>
+        </View>
+        <View>
+          <Text style={styles.metaLabel}>Streak</Text>
+          <Text style={styles.metaValue}>{buddy.streakDays} days</Text>
+        </View>
+        <View>
+          <Text style={styles.metaLabel}>Style</Text>
+          <Text style={styles.metaValue}>{buddy.communicationStyle}</Text>
+        </View>
       </View>
 
       <View style={styles.messages}>
@@ -117,7 +132,7 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   status: {
-    color: colors.emerald,
+    color: colors.muted,
     fontSize: 12,
     fontWeight: "800",
     marginTop: spacing.xs
@@ -126,11 +141,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     height: 42,
     justifyContent: "center",
     width: 42
+  },
+  threadMeta: {
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: spacing.md,
+    padding: spacing.md
+  },
+  metaLabel: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  metaValue: {
+    color: colors.text,
+    fontSize: 12,
+    fontWeight: "900",
+    marginTop: spacing.xs,
+    maxWidth: 100
   },
   messages: {
     flex: 1,
@@ -139,7 +177,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl
   },
   bubble: {
+    borderColor: colors.line,
     borderRadius: radii.lg,
+    borderWidth: 1,
     maxWidth: "84%",
     padding: spacing.md
   },
@@ -149,7 +189,8 @@ const styles = StyleSheet.create({
   },
   mine: {
     alignSelf: "flex-end",
-    backgroundColor: colors.purple
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.orange
   },
   messageText: {
     color: colors.text,
@@ -158,7 +199,7 @@ const styles = StyleSheet.create({
   },
   time: {
     alignSelf: "flex-end",
-    color: "rgba(255,255,255,0.65)",
+    color: colors.muted,
     fontSize: 10,
     fontWeight: "700",
     marginTop: spacing.sm
@@ -196,7 +237,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.pill,
+    borderRadius: radii.md,
     borderWidth: 1,
     flexDirection: "row",
     gap: spacing.xs,
@@ -214,7 +255,7 @@ const styles = StyleSheet.create({
   send: {
     alignItems: "center",
     backgroundColor: colors.orange,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     height: 50,
     justifyContent: "center",
     width: 50
