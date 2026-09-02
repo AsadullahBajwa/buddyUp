@@ -62,18 +62,25 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
         <Pressable style={styles.back} onPress={onBack}>
           <Feather name="arrow-left" color={colors.text} size={20} />
         </Pressable>
-        <Text style={styles.title}>AI Coach</Text>
+        <View>
+          <Text style={styles.title}>AI Coach</Text>
+          <Text style={styles.headerMeta}>{goals.length} active goal{goals.length === 1 ? "" : "s"}</Text>
+        </View>
       </View>
 
       <View style={styles.thread}>
         <View style={styles.bubble}>
-          <Text style={styles.bubbleText}>Good morning, Alex. Here is your plan for today.</Text>
+          <Text style={styles.bubbleLabel}>Brief</Text>
+          <Text style={styles.bubbleText}>Focus the next action, remove friction, and report progress before the day ends.</Text>
         </View>
 
         <View style={styles.plan}>
-          <Text style={styles.planTitle}>Today&apos;s plan</Text>
+          <Text style={styles.planTitle}>Daily operating plan</Text>
           {plan.map((item) => (
-            <Text key={item} style={styles.planItem}>{item}</Text>
+            <View key={item} style={styles.planRow}>
+              <View style={styles.planDot} />
+              <Text style={styles.planItem}>{item}</Text>
+            </View>
           ))}
         </View>
 
@@ -90,7 +97,7 @@ export function AICoachScreen({ goals = [], userId, onBack }: AICoachScreenProps
           ))}
         </View>
 
-        <GradientButton disabled={isThinking} label={isThinking ? "Thinking..." : "Give me motivation"} onPress={() => askCoach("motivate me")} variant="cool" />
+        <GradientButton disabled={isThinking} label={isThinking ? "Thinking..." : "Refresh coaching brief"} onPress={() => askCoach("motivate me")} variant="cool" />
 
         <View style={styles.coachCard}>
           <View style={styles.coachCopy}>
@@ -136,6 +143,12 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     letterSpacing: 0
   },
+  headerMeta: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800",
+    marginTop: spacing.xs
+  },
   thread: {
     flex: 1,
     gap: spacing.lg,
@@ -144,9 +157,18 @@ const styles = StyleSheet.create({
   bubble: {
     alignSelf: "flex-start",
     backgroundColor: colors.surface,
+    borderColor: colors.line,
     borderRadius: radii.lg,
+    borderWidth: 1,
     maxWidth: "86%",
     padding: spacing.lg
+  },
+  bubbleLabel: {
+    color: colors.orange,
+    fontSize: 11,
+    fontWeight: "900",
+    marginBottom: spacing.sm,
+    textTransform: "uppercase"
   },
   bubbleText: {
     color: colors.text,
@@ -168,8 +190,22 @@ const styles = StyleSheet.create({
   },
   planItem: {
     color: colors.soft,
+    flex: 1,
     fontSize: 14,
-    lineHeight: 24
+    lineHeight: 22
+  },
+  planRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.sm
+  },
+  planDot: {
+    backgroundColor: colors.orange,
+    borderRadius: radii.pill,
+    height: 6,
+    marginTop: 8,
+    width: 6
   },
   promptRow: {
     flexDirection: "row",
@@ -179,7 +215,7 @@ const styles = StyleSheet.create({
   promptChip: {
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.pill,
+    borderRadius: radii.md,
     borderWidth: 1,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm
@@ -234,7 +270,7 @@ const styles = StyleSheet.create({
   send: {
     alignItems: "center",
     backgroundColor: colors.purple,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     height: 50,
     justifyContent: "center",
     width: 50
