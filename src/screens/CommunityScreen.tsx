@@ -55,8 +55,8 @@ export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost
     <Screen footerSpace>
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>BuddyUp</Text>
-          <Text style={styles.subtitle}>Community feed</Text>
+          <Text style={styles.title}>Community</Text>
+          <Text style={styles.subtitle}>Proof feed and accountability groups</Text>
         </View>
         <Image
           source={{ uri: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80" }}
@@ -76,6 +76,11 @@ export function CommunityScreen({ posts = feedPosts, onCommentPost, onCreatePost
             <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
           </Pressable>
         ))}
+      </View>
+
+      <View style={styles.feedSummary}>
+        <Text style={styles.feedSummaryText}>{visiblePosts.length} visible post{visiblePosts.length === 1 ? "" : "s"}</Text>
+        <Text style={styles.feedSummaryText}>{activeTab}</Text>
       </View>
 
       <View style={styles.composer}>
@@ -152,7 +157,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "900",
     letterSpacing: 0
   },
@@ -162,7 +167,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs
   },
   avatar: {
-    borderColor: colors.orange,
+    borderColor: colors.line,
     borderRadius: radii.pill,
     borderWidth: 2,
     height: 48,
@@ -185,7 +190,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm
   },
   activeTab: {
-    backgroundColor: colors.orange
+    backgroundColor: colors.surfaceHigh
   },
   tabText: {
     color: colors.muted,
@@ -193,7 +198,18 @@ const styles = StyleSheet.create({
     fontWeight: "800"
   },
   activeTabText: {
-    color: colors.white
+    color: colors.text
+  },
+  feedSummary: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: spacing.md
+  },
+  feedSummaryText: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800"
   },
   composer: {
     alignItems: "center",
@@ -208,7 +224,7 @@ const styles = StyleSheet.create({
   postButton: {
     alignItems: "center",
     backgroundColor: colors.orange,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     height: 48,
     justifyContent: "center",
     width: 48
@@ -251,7 +267,7 @@ const styles = StyleSheet.create({
   },
   groupIcon: {
     alignItems: "center",
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     height: 42,
     justifyContent: "center",
     width: 42
@@ -296,7 +312,7 @@ const styles = StyleSheet.create({
     marginLeft: "auto"
   },
   dot: {
-    backgroundColor: colors.orangeLight,
+    backgroundColor: colors.line,
     borderColor: colors.surface,
     borderRadius: radii.pill,
     borderWidth: 2,
@@ -335,7 +351,7 @@ const styles = StyleSheet.create({
   commentButton: {
     alignItems: "center",
     backgroundColor: colors.purple,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     height: 44,
     justifyContent: "center",
     width: 44

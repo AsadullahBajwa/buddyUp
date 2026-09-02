@@ -60,12 +60,14 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
           source={{ uri: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80" }}
           style={styles.avatar}
         />
-        <Text style={styles.username}>{displayName}</Text>
-        <Text style={styles.level}>Level {level}</Text>
-        <View style={styles.xpTrack}>
-          <View style={[styles.xpFill, { width: `${xpProgress}%` }]} />
+        <View style={styles.heroCopy}>
+          <Text style={styles.username}>{displayName}</Text>
+          <Text style={styles.level}>Profile and weekly report - Level {level}</Text>
+          <View style={styles.xpTrack}>
+            <View style={[styles.xpFill, { width: `${xpProgress}%` }]} />
+          </View>
+          <Text style={styles.xp}>XP {xp} / {nextLevelXp}</Text>
         </View>
-        <Text style={styles.xp}>XP {xp} / {nextLevelXp}</Text>
       </View>
 
       <View style={styles.stats}>
@@ -195,21 +197,31 @@ export function ProfileScreen({ commitments = [], user, goals = [], matchesCount
 const styles = StyleSheet.create({
   hero: {
     alignItems: "center",
-    marginTop: spacing.lg
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.md,
+    marginTop: spacing.lg,
+    padding: spacing.lg
   },
   avatar: {
-    borderColor: colors.orange,
-    borderRadius: 54,
-    borderWidth: 2,
-    height: 108,
-    width: 108
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    height: 72,
+    width: 72
+  },
+  heroCopy: {
+    flex: 1
   },
   username: {
     color: colors.text,
     fontSize: 20,
     fontWeight: "900",
     letterSpacing: 0,
-    marginTop: spacing.md
+    marginTop: 0
   },
   level: {
     color: colors.soft,
@@ -223,7 +235,7 @@ const styles = StyleSheet.create({
     height: 8,
     marginTop: spacing.md,
     overflow: "hidden",
-    width: "70%"
+    width: "100%"
   },
   xpFill: {
     backgroundColor: colors.orange,
@@ -272,7 +284,7 @@ const styles = StyleSheet.create({
   insight: {
     backgroundColor: colors.surfaceHigh,
     borderColor: colors.line,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flex: 1,
     padding: spacing.md
@@ -319,7 +331,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surfaceHigh,
     borderColor: colors.emerald,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     borderWidth: 1,
     height: 34,
     justifyContent: "center",
