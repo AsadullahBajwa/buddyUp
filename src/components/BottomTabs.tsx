@@ -56,27 +56,27 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: radii.lg,
     borderWidth: 1,
-    bottom: 14,
+    bottom: 12,
     flexDirection: "row",
-    gap: spacing.sm,
+    gap: spacing.xs,
     justifyContent: "space-between",
     padding: spacing.sm,
     position: "absolute",
-    width: "92%"
+    width: "94%"
   },
   item: {
     alignItems: "center",
     borderRadius: radii.md,
-    height: 44,
+    height: 42,
     justifyContent: "center",
     width: 48
   },
   create: {
     backgroundColor: colors.orange,
-    borderRadius: radii.pill,
-    height: 52,
+    borderRadius: radii.lg,
+    height: 46,
     marginHorizontal: spacing.xs,
-    width: 52
+    width: 50
   },
   createActive: {
     backgroundColor: colors.orangeLight

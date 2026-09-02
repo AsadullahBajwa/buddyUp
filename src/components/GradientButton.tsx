@@ -31,13 +31,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: radii.md,
     justifyContent: "center",
-    minHeight: 54,
+    minHeight: 50,
     paddingHorizontal: spacing.xl,
     ...shadows.glow
   },
   label: {
     color: colors.white,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "800",
     letterSpacing: 0
   },

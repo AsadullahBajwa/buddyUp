@@ -24,15 +24,15 @@ export function Pill({ label, tone = "default" }: PillProps) {
 
 const styles = StyleSheet.create({
   pill: {
-    backgroundColor: "rgba(255,255,255,0.04)",
-    borderRadius: radii.pill,
+    backgroundColor: "rgba(255,255,255,0.035)",
+    borderRadius: radii.sm,
     borderWidth: 1,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm
+    paddingVertical: spacing.xs
   },
   label: {
     color: colors.soft,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     letterSpacing: 0
   },

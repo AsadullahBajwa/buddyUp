@@ -18,24 +18,24 @@ export function StatCard({ label, value }: StatCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    alignItems: "center",
+    alignItems: "flex-start",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flex: 1,
     padding: spacing.md
   },
   label: {
     color: colors.muted,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     letterSpacing: 0,
     marginTop: spacing.xs
   },
   value: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "900",
     letterSpacing: 0
   }
