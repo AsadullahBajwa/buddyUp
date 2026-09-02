@@ -79,9 +79,9 @@ function GoogleSignInButton({ onGoogleAuthenticated, onAuthError }: GoogleButton
 
 export function AuthScreen({ onAuthenticated, onLogin, onGoogleAuthenticated, onAuthError }: AuthScreenProps) {
   const [mode, setMode] = useState<"signup" | "login">("signup");
-  const [name, setName] = useState("Alex Carter");
-  const [email, setEmail] = useState("alex@buddyup.test");
-  const [password, setPassword] = useState("buddyup123");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const googleConfig = useMemo(getGoogleClientConfig, []);
   const isLogin = mode === "login";
@@ -121,9 +121,9 @@ export function AuthScreen({ onAuthenticated, onLogin, onGoogleAuthenticated, on
     <Screen>
       <View style={styles.top}>
         <AppLogo size="small" />
-        <Text style={styles.title}>{isLogin ? "Welcome back" : "Create your account"}</Text>
+        <Text style={styles.title}>{isLogin ? "Welcome back" : "Sign up to continue"}</Text>
         <Text style={styles.subtitle}>
-          {isLogin ? "Jump back into your accountability routine." : "Let us get your accountability circle started."}
+          {isLogin ? "Pick up your accountability routine where you left off." : "Create a private profile and connect your goals to real follow-through."}
         </Text>
       </View>
 
@@ -185,14 +185,16 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "900",
     letterSpacing: 0,
-    marginTop: spacing.xl
+    lineHeight: 32,
+    marginTop: spacing.lg
   },
   subtitle: {
     color: colors.soft,
-    fontSize: 15
+    fontSize: 14,
+    lineHeight: 21
   },
   form: {
     gap: spacing.md,
@@ -201,7 +203,7 @@ const styles = StyleSheet.create({
   modeSwitch: {
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flexDirection: "row",
     gap: spacing.xs,
@@ -212,10 +214,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: radii.sm,
     flex: 1,
-    paddingVertical: spacing.sm
+    paddingVertical: spacing.md
   },
   activeMode: {
-    backgroundColor: colors.orange
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.orange,
+    borderWidth: 1
   },
   modeText: {
     color: colors.muted,
@@ -247,7 +251,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flexDirection: "row",
     gap: spacing.md,
@@ -268,7 +272,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm
   },
   studentText: {
-    color: colors.orange,
+    color: colors.soft,
     fontSize: 13,
     fontWeight: "800"
   }

@@ -46,8 +46,8 @@ export function ProfileSetupScreen({ onComplete }: ProfileSetupScreenProps) {
 
   return (
     <Screen>
-      <Text style={styles.title}>Tell us about you</Text>
-      <Text style={styles.subtitle}>This helps us find the best buddy for your goals.</Text>
+      <Text style={styles.title}>Set up your profile</Text>
+      <Text style={styles.subtitle}>Choose the basics we use for matching, reminders, and weekly accountability reports.</Text>
 
       <View style={styles.avatarWrap}>
         <Image
@@ -65,7 +65,10 @@ export function ProfileSetupScreen({ onComplete }: ProfileSetupScreenProps) {
         <TextField placeholder="Timezone" onChangeText={setTimezone} value={timezone} />
       </View>
 
-      <Text style={styles.label}>Goals</Text>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.label}>Goals</Text>
+        <Text style={styles.selectedCount}>{selectedGoals.length} selected</Text>
+      </View>
       <View style={styles.pills}>
         {goalCategories.slice(0, 9).map((goal, index) => (
           <Pressable key={goal} onPress={() => toggleGoal(goal)}>
@@ -85,21 +88,21 @@ export function ProfileSetupScreen({ onComplete }: ProfileSetupScreenProps) {
 const styles = StyleSheet.create({
   title: {
     color: colors.text,
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: "900",
     letterSpacing: 0,
     marginTop: spacing.xl
   },
   subtitle: {
     color: colors.soft,
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 22,
     marginTop: spacing.sm
   },
   avatarWrap: {
     alignItems: "center",
     alignSelf: "center",
-    borderColor: colors.orange,
+    borderColor: colors.line,
     borderRadius: 62,
     borderWidth: 2,
     height: 118,
@@ -134,7 +137,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "900",
     letterSpacing: 0,
+  },
+  sectionHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: spacing.xl
+  },
+  selectedCount: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800"
   },
   pills: {
     flexDirection: "row",

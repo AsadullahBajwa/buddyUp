@@ -13,19 +13,19 @@ type OnboardingScreenProps = {
 const features = [
   {
     title: "Smart matching",
-    body: "Meet partners by goal, timezone, energy, and communication style.",
+    body: "Rank partners by shared goals, reliability, timezone, and communication style.",
     icon: "users" as const,
     color: colors.orange
   },
   {
-    title: "Daily check-ins",
-    body: "Log streaks, tasks, photos, voice notes, and progress wins.",
+    title: "Proof-led progress",
+    body: "Turn goals into check-ins, promises, streaks, and weekly proof history.",
     icon: "check-circle" as const,
     color: colors.emerald
   },
   {
-    title: "Community energy",
-    body: "Join focused groups, challenges, and motivation threads.",
+    title: "Focused support",
+    body: "Use buddy chat, community posts, and coaching prompts when momentum drops.",
     icon: "message-circle" as const,
     color: colors.purple
   }
@@ -36,8 +36,8 @@ export function OnboardingScreen({ onContinue }: OnboardingScreenProps) {
     <Screen>
       <View style={styles.hero}>
         <AppLogo />
-        <Text style={styles.title}>Find your accountability partner.</Text>
-        <Text style={styles.subtitle}>Swipe, check in, chat, and turn goals into a routine with people who actually show up.</Text>
+        <Text style={styles.title}>Build momentum with an accountability partner.</Text>
+        <Text style={styles.subtitle}>Set goals, prove progress, and keep a practical weekly rhythm with people who show up.</Text>
       </View>
 
       <View style={styles.stack}>
@@ -56,12 +56,12 @@ export function OnboardingScreen({ onContinue }: OnboardingScreenProps) {
 
       <View style={styles.preview}>
         <View style={styles.previewHeader}>
-          <Text style={styles.previewTitle}>Today</Text>
+          <Text style={styles.previewTitle}>This week</Text>
           <MaterialCommunityIcons name="fire" color={colors.orange} size={22} />
         </View>
         <View style={styles.metricRow}>
-          <Text style={styles.metric}>85%</Text>
-          <Text style={styles.metricLabel}>overall progress</Text>
+          <Text style={styles.metric}>72%</Text>
+          <Text style={styles.metricLabel}>promise completion</Text>
         </View>
       </View>
 
@@ -77,15 +77,15 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: "900",
     letterSpacing: 0,
     lineHeight: 40
   },
   subtitle: {
     color: colors.soft,
-    fontSize: 16,
-    lineHeight: 24
+    fontSize: 15,
+    lineHeight: 23
   },
   stack: {
     gap: spacing.md,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flexDirection: "row",
     gap: spacing.md,
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     alignItems: "center",
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     height: 46,
     justifyContent: "center",
