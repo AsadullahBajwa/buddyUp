@@ -42,13 +42,25 @@ export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: Ch
 
   return (
     <Screen footerSpace>
-      <Text style={styles.title}>How was your day?</Text>
-      <Text style={styles.subtitle}>Share progress with your buddy.</Text>
+      <Text style={styles.title}>Submit proof</Text>
+      <Text style={styles.subtitle}>Record what moved forward and keep your partner in the loop.</Text>
+
+      <View style={styles.summary}>
+        <View>
+          <Text style={styles.summaryLabel}>Selected goals</Text>
+          <Text style={styles.summaryValue}>{completedCount} / {totalCount}</Text>
+        </View>
+        <View style={styles.summaryDivider} />
+        <View>
+          <Text style={styles.summaryLabel}>Proof type</Text>
+          <Text style={styles.summaryValue}>{type}</Text>
+        </View>
+      </View>
 
       <View style={styles.typeGrid}>
         {checkInTypes.map((item) => (
           <Pressable key={item.label} style={[styles.type, type === item.label.toLowerCase() && styles.activeType]} onPress={() => setType(item.label.toLowerCase())}>
-            <Feather name={item.icon} color={type === item.label.toLowerCase() ? colors.orange : colors.soft} size={22} />
+            <Feather name={item.icon} color={type === item.label.toLowerCase() ? colors.orange : colors.soft} size={20} />
             <Text style={[styles.typeText, type === item.label.toLowerCase() && styles.activeTypeText]}>{item.label}</Text>
           </Pressable>
         ))}
@@ -101,7 +113,7 @@ export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: Ch
 const styles = StyleSheet.create({
   title: {
     color: colors.text,
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: "900",
     letterSpacing: 0,
     marginTop: spacing.xl
@@ -109,22 +121,52 @@ const styles = StyleSheet.create({
   subtitle: {
     color: colors.soft,
     fontSize: 15,
+    lineHeight: 22,
     marginTop: spacing.sm
+  },
+  summary: {
+    alignItems: "center",
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: spacing.xl,
+    padding: spacing.lg
+  },
+  summaryLabel: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  summaryValue: {
+    color: colors.text,
+    fontSize: 17,
+    fontWeight: "900",
+    marginTop: spacing.xs,
+    textTransform: "capitalize"
+  },
+  summaryDivider: {
+    backgroundColor: colors.line,
+    height: 36,
+    width: 1
   },
   typeGrid: {
     flexDirection: "row",
     gap: spacing.sm,
-    marginTop: spacing.xxl
+    marginTop: spacing.lg
   },
   type: {
     alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flex: 1,
     gap: spacing.sm,
-    minHeight: 82,
+    minHeight: 72,
     justifyContent: "center"
   },
   typeText: {
@@ -133,6 +175,7 @@ const styles = StyleSheet.create({
     fontWeight: "800"
   },
   activeType: {
+    backgroundColor: colors.surfaceHigh,
     borderColor: colors.orange
   },
   activeTypeText: {
@@ -168,12 +211,20 @@ const styles = StyleSheet.create({
   },
   taskRow: {
     alignItems: "center",
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    borderWidth: 1,
     flexDirection: "row",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    padding: spacing.md
   },
   taskText: {
     color: colors.soft,
-    fontSize: 15
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
+    paddingRight: spacing.md
   },
   check: {
     alignItems: "center",
