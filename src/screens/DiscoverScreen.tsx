@@ -84,7 +84,7 @@ export function DiscoverScreen({ onMatch, userId }: DiscoverScreenProps) {
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>Find your buddy</Text>
-          <Text style={styles.subtitle}>Swipe energy, match with consistency.</Text>
+          <Text style={styles.subtitle}>Ranked partners based on fit and follow-through.</Text>
         </View>
         <Pressable style={styles.filterButton}>
           <Feather name="sliders" color={colors.text} size={20} />
@@ -122,7 +122,7 @@ export function DiscoverScreen({ onMatch, userId }: DiscoverScreenProps) {
       </View>
 
       <Text style={styles.resultCount}>
-        {pool.length} match{pool.length === 1 ? "" : "es"} for {goalFilter === "All" ? "all goals" : goalFilter}
+        {pool.length} recommended partner{pool.length === 1 ? "" : "s"} for {goalFilter === "All" ? "all goals" : goalFilter}
       </Text>
 
       {loadError ? <Text style={styles.errorText}>{loadError}</Text> : null}
@@ -138,6 +138,9 @@ export function DiscoverScreen({ onMatch, userId }: DiscoverScreenProps) {
           <View style={styles.score}>
             <Ionicons name="shield-checkmark" color={colors.emerald} size={18} />
             <Text style={styles.scoreText}>{buddy.matchScore ? `${buddy.matchScore}% recommended` : `${buddy.reliabilityScore}% reliable`}</Text>
+          </View>
+          <View style={styles.queueLabel}>
+            <Text style={styles.queueText}>Candidate {pool.indexOf(buddy) + 1} of {pool.length}</Text>
           </View>
           <View style={styles.cardCopy}>
             <Text style={styles.name}>
@@ -195,7 +198,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "900",
     letterSpacing: 0
   },
@@ -216,9 +219,15 @@ const styles = StyleSheet.create({
   },
   toggleRow: {
     alignItems: "center",
+    backgroundColor: colors.surface,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    borderWidth: 1,
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: spacing.xl
+    marginVertical: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md
   },
   toggleText: {
     color: colors.text,
@@ -235,7 +244,7 @@ const styles = StyleSheet.create({
   goalFilter: {
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.pill,
+    borderRadius: radii.md,
     borderWidth: 1,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm
@@ -254,7 +263,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: radii.xl,
-    height: 480,
+    height: 430,
     justifyContent: "space-between",
     overflow: "hidden"
   },
@@ -265,10 +274,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.xl,
+    borderRadius: radii.lg,
     borderWidth: 1,
     gap: spacing.md,
-    height: 480,
+    height: 430,
     justifyContent: "center"
   },
   loadingText: {
@@ -292,10 +301,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.xl,
+    borderRadius: radii.lg,
     borderWidth: 1,
     gap: spacing.md,
-    height: 480,
+    height: 430,
     justifyContent: "center",
     padding: spacing.xl
   },
@@ -312,7 +321,7 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     backgroundColor: colors.orange,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm
   },
@@ -323,20 +332,35 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(3, 7, 18, 0.28)"
+    backgroundColor: "rgba(3, 7, 18, 0.18)"
   },
   score: {
     alignItems: "center",
     alignSelf: "flex-end",
     backgroundColor: "rgba(8, 13, 24, 0.72)",
     borderColor: "rgba(255,255,255,0.16)",
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     borderWidth: 1,
     flexDirection: "row",
     gap: spacing.xs,
     margin: spacing.lg,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm
+  },
+  queueLabel: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(8, 13, 24, 0.72)",
+    borderColor: "rgba(255,255,255,0.16)",
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    marginHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  queueText: {
+    color: colors.soft,
+    fontSize: 12,
+    fontWeight: "900"
   },
   scoreText: {
     color: colors.text,
@@ -373,7 +397,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(8, 13, 24, 0.72)",
     borderColor: "rgba(255,255,255,0.16)",
-    borderRadius: radii.pill,
+    borderRadius: radii.md,
     borderWidth: 1,
     flexDirection: "row",
     gap: spacing.xs,
@@ -402,7 +426,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.line,
-    borderRadius: radii.pill,
+    borderRadius: radii.lg,
     borderWidth: 1,
     height: 62,
     justifyContent: "center",
