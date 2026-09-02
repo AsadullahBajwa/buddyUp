@@ -53,6 +53,14 @@ npm start -- --clear
 - Tap each AI Coach quick prompt and confirm the plan or reply updates.
 - Tap a goal-specific AI Coach quick prompt and confirm the reply names that goal.
 
+## Visual QA
+
+- Confirm card corners look tight and consistent across Goals, Discover, Check-in, Chat, Community, and Profile.
+- Confirm buttons, tabs, and quick prompts do not resize when pressed or when text changes.
+- Confirm the bottom tab bar does not cover submit buttons, composer fields, or final rows.
+- Confirm long goal names and buddy communication styles wrap without overlapping icons.
+- Confirm dark surfaces have enough contrast outdoors or at low screen brightness.
+
 ## Profile And Backend Status
 
 - Open Profile and confirm API health shows online.

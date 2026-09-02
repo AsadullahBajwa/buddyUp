@@ -23,6 +23,17 @@ This generated preview summarizes the main app screens: goals, discovery, check-
 | CI/CD | Cloud Build trigger, Artifact Registry, Cloud Run deployment |
 | Quality gates | Node test runner and TypeScript typecheck |
 
+## Design Direction
+
+The mobile UI now uses a more mature product style: compact cards, 8px-or-smaller card corners, restrained dark neutrals, clearer report-style summaries, and less decorative glow. The main screens are organized around repeated accountability work instead of marketing-style presentation:
+
+- Goals opens with a weekly progress panel and promise counts instead of a decorative progress ring.
+- Discover presents a ranked partner shortlist with recommendation context.
+- Check-in is framed as proof submission with selected-goal and proof-type summaries.
+- Chat includes partner reliability, streak, and communication style in the thread header.
+- AI Coach is structured as a daily operating plan with concise coaching prompts.
+- Community and Profile use feed/report patterns for easier scanning on phone screens.
+
 ## Core Features
 
 - Onboarding, signup, login, Google OAuth handoff, and profile setup
@@ -319,6 +330,7 @@ The API rejects invalid profile setup fields, unknown match users, missing chat 
 
 Recent mobile polish:
 
+- The shared UI system now uses calmer product colors, tighter radii, and more compact controls.
 - The Goals screen summarizes promise progress before the user opens Profile.
 - The Goals screen can turn a goal into a promise with the `Promise this` shortcut.
 - The Goals screen can snooze an open promise without deleting it.
