@@ -20,6 +20,23 @@ type GoalsScreenProps = {
   onOpenCoach?: () => void;
 };
 
+function getDueState(dueAt: string) {
+  const dueDate = new Date(dueAt);
+  if (Number.isNaN(dueDate.getTime())) {
+    return { label: "Due soon", tone: "neutral" as const };
+  }
+
+  const today = new Date();
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const startOfDueDate = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate()).getTime();
+  const dayDiff = Math.round((startOfDueDate - startOfToday) / 86400000);
+
+  if (dayDiff < 0) return { label: "Overdue", tone: "danger" as const };
+  if (dayDiff === 0) return { label: "Due today", tone: "urgent" as const };
+  if (dayDiff === 1) return { label: "Tomorrow", tone: "neutral" as const };
+  return { label: dueDate.toLocaleDateString([], { month: "short", day: "numeric" }), tone: "neutral" as const };
+}
+
 export function GoalsScreen({
   commitments = [],
   goals: currentGoals = goals,
@@ -37,6 +54,10 @@ export function GoalsScreen({
   const openCommitments = commitments.filter((commitment) => commitment.status === "open").slice(0, 3);
   const openCommitmentCount = commitments.filter((commitment) => commitment.status === "open").length;
   const completedCommitmentCount = commitments.filter((commitment) => commitment.status === "completed").length;
+  const overdueCommitmentCount = commitments.filter((commitment) => {
+    if (commitment.status !== "open") return false;
+    return getDueState(commitment.dueAt).tone === "danger";
+  }).length;
 
   function addPromise() {
     const title = promiseDraft.trim();
@@ -66,7 +87,9 @@ export function GoalsScreen({
         <ProgressBar progress={overall / 100} accent={colors.orange} />
         <View style={styles.overviewMeta}>
           <Text style={styles.overviewMetaText}>{openCommitmentCount} open promises</Text>
-          <Text style={styles.overviewMetaText}>{completedCommitmentCount} closed</Text>
+          <Text style={[styles.overviewMetaText, overdueCommitmentCount > 0 && styles.overdueMetaText]}>
+            {overdueCommitmentCount > 0 ? `${overdueCommitmentCount} overdue` : `${completedCommitmentCount} closed`}
+          </Text>
         </View>
       </View>
 
@@ -116,34 +139,44 @@ export function GoalsScreen({
         </View>
         {openCommitments.length ? (
           <View style={styles.promiseList}>
-            {openCommitments.map((commitment) => (
-              <View key={commitment.id} style={styles.promiseRow}>
-                <Pressable
-                  accessibilityLabel={`Complete ${commitment.title}`}
-                  style={styles.promiseMainAction}
-                  onPress={() => onCompleteCommitment?.(commitment.id)}
-                >
-                  <View style={styles.promiseCheck}>
-                    <Feather name="check" color={colors.emerald} size={15} />
-                  </View>
-                  <Text style={styles.promiseText}>{commitment.title}</Text>
-                </Pressable>
-                <Pressable
-                  accessibilityLabel={`Delete ${commitment.title}`}
-                  style={styles.promiseDelete}
-                  onPress={() => onDeleteCommitment?.(commitment.id)}
-                >
-                  <Feather name="trash-2" color={colors.red} size={16} />
-                </Pressable>
-                <Pressable
-                  accessibilityLabel={`Snooze ${commitment.title}`}
-                  style={styles.promiseSnooze}
-                  onPress={() => onSnoozeCommitment?.(commitment.id)}
-                >
-                  <Feather name="clock" color={colors.blue} size={16} />
-                </Pressable>
-              </View>
-            ))}
+            {openCommitments.map((commitment) => {
+              const dueState = getDueState(commitment.dueAt);
+
+              return (
+                <View key={commitment.id} style={styles.promiseRow}>
+                  <Pressable
+                    accessibilityLabel={`Complete ${commitment.title}`}
+                    style={styles.promiseMainAction}
+                    onPress={() => onCompleteCommitment?.(commitment.id)}
+                  >
+                    <View style={styles.promiseCheck}>
+                      <Feather name="check" color={colors.emerald} size={15} />
+                    </View>
+                    <View style={styles.promiseCopy}>
+                      <Text style={styles.promiseText}>{commitment.title}</Text>
+                      <View style={[styles.dueBadge, dueState.tone === "danger" && styles.dueBadgeDanger, dueState.tone === "urgent" && styles.dueBadgeUrgent]}>
+                        <Feather name="calendar" color={dueState.tone === "danger" ? colors.red : dueState.tone === "urgent" ? colors.orange : colors.muted} size={11} />
+                        <Text style={[styles.dueBadgeText, dueState.tone === "danger" && styles.dueBadgeTextDanger, dueState.tone === "urgent" && styles.dueBadgeTextUrgent]}>{dueState.label}</Text>
+                      </View>
+                    </View>
+                  </Pressable>
+                  <Pressable
+                    accessibilityLabel={`Delete ${commitment.title}`}
+                    style={styles.promiseDelete}
+                    onPress={() => onDeleteCommitment?.(commitment.id)}
+                  >
+                    <Feather name="trash-2" color={colors.red} size={16} />
+                  </Pressable>
+                  <Pressable
+                    accessibilityLabel={`Snooze ${commitment.title}`}
+                    style={styles.promiseSnooze}
+                    onPress={() => onSnoozeCommitment?.(commitment.id)}
+                  >
+                    <Feather name="clock" color={colors.blue} size={16} />
+                  </Pressable>
+                </View>
+              );
+            })}
           </View>
         ) : (
           <Text style={styles.emptyPromise}>Add one promise for today and close the loop when it is done.</Text>
@@ -249,6 +282,9 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 12,
     fontWeight: "800"
+  },
+  overdueMetaText: {
+    color: colors.red
   },
   quickActions: {
     flexDirection: "row",
@@ -362,10 +398,41 @@ const styles = StyleSheet.create({
   },
   promiseText: {
     color: colors.soft,
-    flex: 1,
     fontSize: 13,
     fontWeight: "800",
     lineHeight: 18
+  },
+  promiseCopy: {
+    flex: 1,
+    gap: spacing.xs
+  },
+  dueBadge: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    borderColor: colors.line,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2
+  },
+  dueBadgeDanger: {
+    borderColor: colors.red
+  },
+  dueBadgeUrgent: {
+    borderColor: colors.orange
+  },
+  dueBadgeText: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: "900"
+  },
+  dueBadgeTextDanger: {
+    color: colors.red
+  },
+  dueBadgeTextUrgent: {
+    color: colors.orange
   },
   promiseDelete: {
     alignItems: "center",
