@@ -28,8 +28,9 @@ This generated preview summarizes the main app screens: goals, discovery, check-
 The mobile UI now uses a more mature product style: compact cards, 8px-or-smaller card corners, restrained dark neutrals, clearer report-style summaries, and less decorative glow. The main screens are organized around repeated accountability work instead of marketing-style presentation:
 
 - Goals opens with a weekly progress panel and promise counts instead of a decorative progress ring.
+- Promise rows include due-state badges so overdue or due-today work is visible without opening another screen.
 - Discover presents a ranked partner shortlist with recommendation context.
-- Check-in is framed as proof submission with selected-goal and proof-type summaries.
+- Check-in is framed as proof submission with selected-goal summaries, proof-type summaries, and bulk selection for fast logging.
 - Chat includes partner reliability, streak, and communication style in the thread header.
 - AI Coach is structured as a daily operating plan with concise coaching prompts.
 - Community and Profile use feed/report patterns for easier scanning on phone screens.
@@ -333,9 +334,11 @@ Recent mobile polish:
 - The shared UI system now uses calmer product colors, tighter radii, and more compact controls.
 - The Goals screen summarizes promise progress before the user opens Profile.
 - The Goals screen can turn a goal into a promise with the `Promise this` shortcut.
+- The Goals screen labels open promises as overdue, due today, tomorrow, or dated.
 - The Goals screen can snooze an open promise without deleting it.
 - The Discover screen uses personalized recommendations after login and shows match scores, shared goals, and reset actions.
 - The Check-in screen shows how many goals are selected before submitting progress.
+- The Check-in screen can select or clear all visible goals in one tap.
 - The Check-in screen includes quick note templates for faster proof submissions.
 - The Profile screen shows reliability, latest saved check-in proofs, and top proof type from the weekly report.
 - The Community screen tabs now filter feed views for faster mobile scanning.

@@ -36,6 +36,7 @@ npm start -- --clear
 
 - Create an accountability promise from the Goals screen.
 - Tap `Promise this` on a goal and confirm it creates a real open promise.
+- Confirm open promises show a due badge such as `Due today`, `Tomorrow`, a date, or `Overdue`.
 - Complete, snooze, and delete promises to verify the list updates.
 - Use Discover goal filters and match with a buddy.
 - Confirm the buddy card shows match reasons such as reliability, streak, and goal fit.
@@ -46,6 +47,7 @@ npm start -- --clear
 - Tap each quick chat prompt and confirm the icon action sends a real message with a contextual buddy reply.
 - Submit a check-in with at least one selected goal or a note.
 - Confirm the selected-goal count changes when goals are toggled.
+- Use the check-in `All` control to select every visible goal, then `Clear` to remove the selections.
 - Tap each check-in note template and confirm it fills the note field.
 - Try an empty check-in and confirm the button stays disabled.
 - Create a community post and comment; blank submissions should stay disabled.
