@@ -1,6 +1,6 @@
 import { Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { GradientButton } from "../components/GradientButton";
 import { Screen } from "../components/Screen";
@@ -35,9 +35,18 @@ export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: Ch
   const canSubmit = doneIds.length > 0 || note.trim().length > 0;
   const completedCount = doneIds.length;
   const totalCount = taskSeed.length;
+  const allSelected = totalCount > 0 && completedCount === totalCount;
+
+  useEffect(() => {
+    setDoneIds(taskSeed.filter((task) => task.done).map((task) => task.id));
+  }, [taskSeed]);
 
   function toggleTask(id: string) {
     setDoneIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  }
+
+  function toggleAllTasks() {
+    setDoneIds(allSelected ? [] : taskSeed.map((task) => task.id));
   }
 
   return (
@@ -72,7 +81,10 @@ export function CheckInScreen({ goals = [], isSubmitting = false, onSubmit }: Ch
             <Text style={styles.cardTitle}>Today&apos;s goals</Text>
             <Text style={styles.cardSubtitle}>{completedCount} of {totalCount} selected</Text>
           </View>
-          <MaterialCommunityIcons name="dots-horizontal" color={colors.muted} size={22} />
+          <Pressable accessibilityRole="button" style={styles.selectAllButton} onPress={toggleAllTasks}>
+            <MaterialCommunityIcons name={allSelected ? "close-circle-outline" : "check-all"} color={allSelected ? colors.red : colors.emerald} size={18} />
+            <Text style={[styles.selectAllText, allSelected && styles.clearAllText]}>{allSelected ? "Clear" : "All"}</Text>
+          </Pressable>
         </View>
         <View style={styles.tasks}>
           {taskSeed.map((task) => {
@@ -193,6 +205,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between"
+  },
+  selectAllButton: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.line,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs
+  },
+  selectAllText: {
+    color: colors.emerald,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  clearAllText: {
+    color: colors.red
   },
   cardTitle: {
     color: colors.text,
