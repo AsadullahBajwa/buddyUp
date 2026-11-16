@@ -1,5 +1,8 @@
 # BuddyUp
 
+[![CI](https://github.com/AsadullahBajwa/buddyUp/actions/workflows/ci.yml/badge.svg)](https://github.com/AsadullahBajwa/buddyUp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 BuddyUp is a React Native + Expo mobile app for accountability partnerships. It helps users create goals, match with serious partners, check in daily, chat with buddies, post progress in communities, and receive AI coaching through a Node API that can run locally or on Google Cloud Run.
 
 This repository is structured as a portfolio project: it includes a mobile app, a backend API, local JSON persistence, Firestore-ready deployment mode, CI/CD configuration, Google OAuth wiring, and Ollama-backed coaching fallback logic.
@@ -390,3 +393,7 @@ If Ollama is not running, the API falls back to local rule-based coaching so the
 ## Firebase
 
 Add the Firebase project config values to `app.json` under `expo.extra`, then wire the screens to `auth`, `db`, and `storage` from `src/services/firebase.ts`.
+
+## License
+
+Released under the [MIT License](LICENSE).
