@@ -314,6 +314,8 @@ For a guided phone/emulator pass, use [docs/mobile-testing-checklist.md](docs/mo
 
 The Expo app reads `expo.extra.apiBaseUrl` from `app.json`. If that is empty during local development, it uses the Expo dev host and talks to your PC on port `4000`, which is what phones and Android emulators need.
 
+The full endpoint reference, including request bodies, responses and validation rules, is in [docs/api.md](docs/api.md).
+
 Useful endpoints while testing:
 
 - `GET /health` returns API metadata, version, store type, and current server time.
