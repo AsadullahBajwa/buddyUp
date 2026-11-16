@@ -26,6 +26,11 @@ function hashPassword(password) {
   return crypto.createHash("sha256").update(String(password)).digest("hex");
 }
 
+function verifyPassword(password, storedHash) {
+  if (!storedHash) return false;
+  return storedHash === hashPassword(password);
+}
+
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email));
 }
@@ -473,6 +478,8 @@ function createBuddyUpServer(options = {}) {
         db.users.push(user);
         db.goals.push(...createStarterGoals(user.id, []));
         await store.write(db);
+      } else if (!verifyPassword(body.password, user.passwordHash)) {
+        return json(res, 409, { error: "An account with this email already exists" });
       }
       return json(res, 200, { user: publicUser(user) });
     }
@@ -481,7 +488,7 @@ function createBuddyUpServer(options = {}) {
       const body = await parseBody(req);
       const email = String(body.email || "").trim().toLowerCase();
       const user = db.users.find((item) => item.email === email);
-      if (!user || user.passwordHash !== hashPassword(body.password || "")) {
+      if (!user || !verifyPassword(body.password || "", user.passwordHash)) {
         return json(res, 401, { error: "Invalid email or password" });
       }
       return json(res, 200, { user: publicUser(user) });

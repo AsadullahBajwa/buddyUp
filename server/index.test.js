@@ -193,6 +193,25 @@ test("invalid JSON returns a client error", async () => {
   });
 });
 
+test("signup does not return an existing account when the password is wrong", async () => {
+  await withApi(async (baseUrl) => {
+    const email = "taken@buddyup.test";
+    const owner = await api(baseUrl, "/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ name: "Owner", email, password: "buddyup123" })
+    });
+    assert.equal(owner.response.status, 200);
+
+    const intruder = await api(baseUrl, "/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ name: "Intruder", email, password: "guessing123" })
+    });
+    assert.equal(intruder.response.status, 409);
+    assert.equal(intruder.body.error, "An account with this email already exists");
+    assert.equal(intruder.body.user, undefined);
+  });
+});
+
 test("signup validates email and password inputs", async () => {
   await withApi(async (baseUrl) => {
     const invalidEmail = await api(baseUrl, "/auth/signup", {
