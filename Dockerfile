@@ -1,7 +1,10 @@
 FROM node:22-slim
 
+# Mirror the repo layout: the API reads its version from the root package.json.
 WORKDIR /app
+COPY package.json ./
 
+WORKDIR /app/server
 COPY server/package*.json ./
 RUN npm ci --omit=dev
 
