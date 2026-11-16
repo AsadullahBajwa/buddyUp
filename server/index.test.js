@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
@@ -18,7 +19,7 @@ async function withApi(fn) {
   const baseUrl = `http://127.0.0.1:${port}`;
 
   try {
-    await fn(baseUrl);
+    await fn(baseUrl, dataFile);
   } finally {
     await new Promise((resolve) => server.close(resolve));
     fs.rmSync(tempDir, { recursive: true, force: true });
@@ -209,6 +210,69 @@ test("signup does not return an existing account when the password is wrong", as
     assert.equal(intruder.response.status, 409);
     assert.equal(intruder.body.error, "An account with this email already exists");
     assert.equal(intruder.body.user, undefined);
+  });
+});
+
+test("passwords are stored as salted scrypt hashes", async () => {
+  await withApi(async (baseUrl, dataFile) => {
+    const password = "buddyup123";
+    for (const email of ["one@buddyup.test", "two@buddyup.test"]) {
+      await api(baseUrl, "/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({ name: "Hash Check", email, password })
+      });
+    }
+
+    const db = JSON.parse(fs.readFileSync(dataFile, "utf8"));
+    const hashes = ["one@buddyup.test", "two@buddyup.test"].map(
+      (email) => db.users.find((user) => user.email === email).passwordHash
+    );
+    for (const hash of hashes) assert.match(hash, /^scrypt\$[a-f0-9]{32}\$[a-f0-9]{128}$/);
+    assert.notEqual(hashes[0], hashes[1]);
+
+    const login = await api(baseUrl, "/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: "one@buddyup.test", password })
+    });
+    assert.equal(login.response.status, 200);
+  });
+});
+
+test("login upgrades a legacy sha256 hash to scrypt", async () => {
+  await withApi(async (baseUrl, dataFile) => {
+    const email = "legacy@buddyup.test";
+    const password = "buddyup123";
+    await api(baseUrl, "/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ name: "Legacy User", email, password })
+    });
+
+    const db = JSON.parse(fs.readFileSync(dataFile, "utf8"));
+    const user = db.users.find((item) => item.email === email);
+    user.passwordHash = crypto.createHash("sha256").update(password).digest("hex");
+    fs.writeFileSync(dataFile, JSON.stringify(db));
+
+    const wrong = await api(baseUrl, "/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password: "not-it" })
+    });
+    assert.equal(wrong.response.status, 401);
+
+    const login = await api(baseUrl, "/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password })
+    });
+    assert.equal(login.response.status, 200);
+
+    const upgraded = JSON.parse(fs.readFileSync(dataFile, "utf8"))
+      .users.find((item) => item.email === email);
+    assert.match(upgraded.passwordHash, /^scrypt\$/);
+
+    const again = await api(baseUrl, "/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password })
+    });
+    assert.equal(again.response.status, 200);
   });
 });
 

@@ -4,6 +4,7 @@ const http = require("http");
 const os = require("os");
 const path = require("path");
 const { URL } = require("url");
+const { promisify } = require("util");
 const packageJson = require("../package.json");
 
 const PORT = Number(process.env.PORT || 4000);
@@ -22,13 +23,36 @@ function id(prefix) {
   return `${prefix}_${crypto.randomUUID().slice(0, 8)}`;
 }
 
-function hashPassword(password) {
+const scrypt = promisify(crypto.scrypt);
+const SCRYPT_KEY_LENGTH = 64;
+
+async function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const derived = await scrypt(String(password), salt, SCRYPT_KEY_LENGTH);
+  return `scrypt$${salt}$${derived.toString("hex")}`;
+}
+
+function legacySha256(password) {
   return crypto.createHash("sha256").update(String(password)).digest("hex");
 }
 
-function verifyPassword(password, storedHash) {
+function isLegacyHash(storedHash) {
+  return /^[a-f0-9]{64}$/.test(String(storedHash));
+}
+
+function safeEqualHex(a, b) {
+  const left = Buffer.from(a, "hex");
+  const right = Buffer.from(b, "hex");
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
+async function verifyPassword(password, storedHash) {
   if (!storedHash) return false;
-  return storedHash === hashPassword(password);
+  if (isLegacyHash(storedHash)) return safeEqualHex(legacySha256(password), storedHash);
+  const [scheme, salt, expected] = String(storedHash).split("$");
+  if (scheme !== "scrypt" || !salt || !expected) return false;
+  const derived = await scrypt(String(password), salt, SCRYPT_KEY_LENGTH);
+  return safeEqualHex(derived.toString("hex"), expected);
 }
 
 function isValidEmail(email) {
@@ -471,14 +495,14 @@ function createBuddyUpServer(options = {}) {
           streakDays: 0,
           reliabilityScore: 70,
           studentVerified: false,
-          passwordHash: hashPassword(body.password || "buddyup"),
+          passwordHash: await hashPassword(body.password || "buddyup"),
           createdAt: now(),
           updatedAt: now()
         };
         db.users.push(user);
         db.goals.push(...createStarterGoals(user.id, []));
         await store.write(db);
-      } else if (!verifyPassword(body.password, user.passwordHash)) {
+      } else if (!(await verifyPassword(body.password, user.passwordHash))) {
         return json(res, 409, { error: "An account with this email already exists" });
       }
       return json(res, 200, { user: publicUser(user) });
@@ -488,8 +512,13 @@ function createBuddyUpServer(options = {}) {
       const body = await parseBody(req);
       const email = String(body.email || "").trim().toLowerCase();
       const user = db.users.find((item) => item.email === email);
-      if (!user || !verifyPassword(body.password || "", user.passwordHash)) {
+      if (!user || !(await verifyPassword(body.password || "", user.passwordHash))) {
         return json(res, 401, { error: "Invalid email or password" });
+      }
+      if (isLegacyHash(user.passwordHash)) {
+        user.passwordHash = await hashPassword(body.password);
+        user.updatedAt = now();
+        await store.write(db);
       }
       return json(res, 200, { user: publicUser(user) });
     }
