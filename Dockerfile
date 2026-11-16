@@ -17,4 +17,7 @@ ENV OLLAMA_ENABLED=false
 
 EXPOSE 8080
 
+# The official Node image ships an unprivileged user; no need to run as root.
+USER node
+
 CMD ["node", "index.js"]
