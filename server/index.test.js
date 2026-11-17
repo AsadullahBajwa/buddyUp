@@ -830,3 +830,17 @@ test("coach rejects empty prompts", async () => {
     assert.equal(message.body.error, "Coach message text is required");
   });
 });
+
+test("coach endpoints reject unknown users", async () => {
+  await withApi(async (baseUrl) => {
+    const plan = await api(baseUrl, "/coach/plan?userId=missing");
+    assert.equal(plan.response.status, 404);
+
+    const message = await api(baseUrl, "/coach/message", {
+      method: "POST",
+      body: JSON.stringify({ userId: "missing", text: "Help me focus" })
+    });
+    assert.equal(message.response.status, 404);
+    assert.equal(message.body.error, "User not found");
+  });
+});

@@ -894,6 +894,7 @@ function createBuddyUpServer(options = {}) {
 
     if (req.method === "GET" && url.pathname === "/coach/plan") {
       const userId = url.searchParams.get("userId");
+      if (!db.users.some((item) => item.id === userId)) return json(res, 404, { error: "User not found" });
       const goals = db.goals.filter((goal) => goal.userId === userId);
       return json(res, 200, { plan: coachPlan(goals) });
     }
@@ -902,6 +903,7 @@ function createBuddyUpServer(options = {}) {
       const body = await parseBody(req);
       const text = String(body.text || "").trim();
       if (!text) return json(res, 400, { error: "Coach message text is required" });
+      if (!db.users.some((item) => item.id === body.userId)) return json(res, 404, { error: "User not found" });
       const goals = db.goals.filter((goal) => goal.userId === body.userId);
       let reply = coachReply(text, goals);
       let provider = "rules";
