@@ -795,6 +795,9 @@ function createBuddyUpServer(options = {}) {
     if (req.method === "PATCH" && parts[0] === "commitments" && parts[1] && parts[2] === "complete") {
       const commitment = db.commitments.find((item) => item.id === parts[1]);
       if (!commitment) return json(res, 404, { error: "Commitment not found" });
+      if (commitment.status === "completed") {
+        return json(res, 409, { error: "Commitment is already completed" });
+      }
       commitment.status = "completed";
       commitment.completedAt = now();
       const user = db.users.find((item) => item.id === commitment.userId);

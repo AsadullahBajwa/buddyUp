@@ -484,6 +484,28 @@ test("commitments can be deleted when plans change", async () => {
   });
 });
 
+test("completing a commitment twice does not award credit twice", async () => {
+  await withApi(async (baseUrl) => {
+    const user = await createUser(baseUrl);
+    const created = await api(baseUrl, "/commitments", {
+      method: "POST",
+      body: JSON.stringify({ userId: user.id, title: "Ship one task" })
+    });
+    const path = `/commitments/${created.body.commitment.id}/complete`;
+
+    const first = await api(baseUrl, path, { method: "PATCH" });
+    assert.equal(first.response.status, 200);
+    assert.equal(first.body.user.xp, 15);
+
+    const second = await api(baseUrl, path, { method: "PATCH" });
+    assert.equal(second.response.status, 409);
+
+    const dashboard = await api(baseUrl, `/dashboard?userId=${user.id}`);
+    assert.equal(dashboard.body.user.xp, 15);
+    assert.equal(dashboard.body.user.reliabilityScore, 71);
+  });
+});
+
 test("commitments can be snoozed when a promise needs more time", async () => {
   await withApi(async (baseUrl) => {
     const user = await createUser(baseUrl);
